@@ -61,23 +61,36 @@ void HelloWorld::gameLogic(float dt)
 	// enemyMovement.y가 음수이면 적이 내려오고 있는 것.
 	// enemyMovement.y가 양수이면 적이 올라가고 있는 것.
 
-	for (int i = 0; i < vecEnemy.size(); i++) {
-		auto enemy = vecEnemy.at(i).first;
-		auto enemyMovement = vecEnemy.at(i).second;
-
+	std::vector<std::pair<cocos2d::Sprite*, cocos2d::Point>>::iterator enmyIterator;
+	for (enmyIterator = vecEnemy.begin(); enmyIterator != vecEnemy.end(); ) {
+		auto enemy = enmyIterator->first;
+		auto enemyMovement = enmyIterator->second;
 
 		enemy->setPosition(Point(enemy->getPosition().x + enemyMovement.x,
 			enemy->getPosition().y + enemyMovement.y));
 
 		// 벽면 충돌 체크
-		if (enemy->getPosition().x > 480 || enemy->getPosition().x < 0)
+		if (enemy->getPosition().x > visibleSize.width || enemy->getPosition().x < 0)
 			enemyMovement.x = -enemyMovement.x;
 
-		if (enemy->getPosition().y > 320 || enemy->getPosition().y < 0)
+		if (enemy->getPosition().y > visibleSize.height || enemy->getPosition().y < 0)
 			enemyMovement.y = -enemyMovement.y;
 
-		vecEnemy.at(i).first = enemy;
-		vecEnemy.at(i).second = enemyMovement;
+		//캐릭터 충돌 체크
+		Rect charRect = sprite_Character->getBoundingBox();
+		Rect enemyRect = enemy->getBoundingBox();
+
+		if (charRect.intersectsRect(enemyRect)) {
+			//MessageBox("Collision", "");
+			this->removeChild(enemy);
+			enemy->autorelease();
+			enmyIterator = vecEnemy.erase(enmyIterator);
+		}
+		else {
+			enmyIterator->first = enemy;
+			enmyIterator->second = enemyMovement;
+			enmyIterator++;
+		}
 	}
 
 }
