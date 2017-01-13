@@ -26,15 +26,24 @@ bool HelloWorld::init()
     if ( !LayerColor::initWithColor(Color4B(255, 255, 255, 255))) {
         return false;
     }   
-	//Ä³¸¯ÅÍ ÃÊ±âÈ­ ¹× »ı¼º 
+	//ìºë¦­í„° ì´ˆê¸°í™” ë° ìƒì„± 
 	initalizeCharacter();
-	// Àû ÃÊ±âÈ­ ¹× »ı¼º ( 1ÃÊ )
+	// ì  ì´ˆê¸°í™” ë° ìƒì„± ( 1ì´ˆ )
 	this->schedule(schedule_selector(HelloWorld::initializeEnemy), 1.0f);
-	// 1ÃÊÈÄ °ÔÀÓ ½ÃÀÛ
+	// 1ì´ˆí›„ ê²Œì„ ì‹œì‘
 	this->scheduleOnce(schedule_selector(HelloWorld::startGame), 1.0f);
 
     return true;
 }
+
+/*******************************************
+	Menu Item Layer
+********************************************/
+void initializeButtonLayer()
+{
+}
+
+
 
 /*******************************************
 	Game Update
@@ -49,8 +58,8 @@ void HelloWorld::startGame(float dt)
 
 void HelloWorld::gameLogic(float dt)
 {
-	// enemyMovement.y°¡ À½¼öÀÌ¸é ÀûÀÌ ³»·Á¿À°í ÀÖ´Â °Í.
-	// enemyMovement.y°¡ ¾ç¼öÀÌ¸é ÀûÀÌ ¿Ã¶ó°¡°í ÀÖ´Â °Í.
+	// enemyMovement.yê°€ ìŒìˆ˜ì´ë©´ ì ì´ ë‚´ë ¤ì˜¤ê³  ìˆëŠ” ê²ƒ.
+	// enemyMovement.yê°€ ì–‘ìˆ˜ì´ë©´ ì ì´ ì˜¬ë¼ê°€ê³  ìˆëŠ” ê²ƒ.
 
 	for (int i = 0; i < vecEnemy.size(); i++) {
 		auto enemy = vecEnemy.at(i).first;
@@ -60,7 +69,7 @@ void HelloWorld::gameLogic(float dt)
 		enemy->setPosition(Point(enemy->getPosition().x + enemyMovement.x,
 			enemy->getPosition().y + enemyMovement.y));
 
-		// º®¸é Ãæµ¹ Ã¼Å©
+		// ë²½ë©´ ì¶©ëŒ ì²´í¬
 		if (enemy->getPosition().x > 480 || enemy->getPosition().x < 0)
 			enemyMovement.x = -enemyMovement.x;
 
@@ -78,7 +87,7 @@ void HelloWorld::gameLogic(float dt)
 ********************************************/
 
 void HelloWorld::initalizeCharacter() {
-	//[sprite] ¾Ö´Ï¸ŞÀÌ¼Ç°ü·Ã ¸¶¿ì½º·Î ¿òÁ÷ÀÏ Ä³¸¯ÅÍ
+	//[sprite] ì• ë‹ˆë©”ì´ì…˜ê´€ë ¨ ë§ˆìš°ìŠ¤ë¡œ ì›€ì§ì¼ ìºë¦­í„°
 	sprite_AnimationCharacter = Sprite::create("res/monster.png");
 	auto texture = sprite_AnimationCharacter->getTexture();
 	//[animation]
@@ -91,15 +100,15 @@ void HelloWorld::initalizeCharacter() {
 	auto animate = Animate::create(animation);
 	auto action_foreverRepeat = RepeatForever::create(animate);
 
-	//[sprite] ¸¶¿ì½º·Î ¿òÁ÷ÀÏ Ä³¸¯ÅÍ
+	//[sprite] ë§ˆìš°ìŠ¤ë¡œ ì›€ì§ì¼ ìºë¦­í„°
 	sprite_Character = Sprite::create("res/monster.png", Rect(0, 0, 64, 64));
 	sprite_Character->setPosition(ccp(visibleSize.width / 2, visibleSize.height / 2));
 	this->addChild(sprite_Character);
 
-	//¾×¼Ç µî·Ï
+	//ì•¡ì…˜ ë“±ë¡
 	sprite_Character->runAction(action_foreverRepeat);
 
-	//ÀÌº¥Æ®
+	//ì´ë²¤íŠ¸
 	auto listener = EventListenerTouchOneByOne::create();
 	listener->setSwallowTouches(true);
 	listener->onTouchBegan = CC_CALLBACK_2(HelloWorld::onTouch, this);
@@ -107,11 +116,11 @@ void HelloWorld::initalizeCharacter() {
 	listener->onTouchEnded = CC_CALLBACK_2(HelloWorld::onTouchEnded, this);
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(listener, sprite_Character);
 	
-	//Ä³¸¯ÅÍ°¡ È­¸é ¹üÀ§ ¹Û¿¡ ³ª°¡Áö ¸øÇÏµµ·Ï ...
+	//ìºë¦­í„°ê°€ í™”ë©´ ë²”ìœ„ ë°–ì— ë‚˜ê°€ì§€ ëª»í•˜ë„ë¡ ...
 	float character_width = sprite_Character->getContentSize().width;
 	float character_height = sprite_Character->getContentSize().height;
 
-	//Ä³¸¯ÅÍ°¡ ÀÌµ¿ÇÒ ¼ö ÀÖ´Â ÃÖ¼Ò,ÃÖ´ëÅ©±â(»ó´ëÀû °Å¸®)
+	//ìºë¦­í„°ê°€ ì´ë™í•  ìˆ˜ ìˆëŠ” ìµœì†Œ,ìµœëŒ€í¬ê¸°(ìƒëŒ€ì  ê±°ë¦¬)
 	min_x = 0 + character_width / 2;
 	max_x = visibleSize.width - character_width / 2;
 	min_y = 0 + character_height / 2;
@@ -128,29 +137,29 @@ void HelloWorld::initializeEnemy(float dt)
 
 	visibleSize = Point(480, 320);
 
-	//Àû ÀÌ¹ÌÁö °¡Á®¿À±â
+	//ì  ì´ë¯¸ì§€ ê°€ì ¸ì˜¤ê¸°
 	Sprite* enemy = Sprite::create("res/enemy.png");
 
-	//Àû »ı¼º
+	//ì  ìƒì„±
 	int sides = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
 	log("%d", sides);
 
 	int gap = -3;
 
-	if (sides == 1) { //»ó
+	if (sides == 1) { //ìƒ
 		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
 		if (pos == 1) enemy->setPosition(Vec2(origin.x + visibleSize.width*0.25, origin.y + visibleSize.height + gap));
 		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + visibleSize.width*0.5, origin.y + visibleSize.height + gap));
 		else if (pos == 3)    enemy->setPosition(Vec2(origin.x + visibleSize.width*0.75, origin.y + visibleSize.height + gap));
 	}
-	else if (sides == 2) // ÇÏ
+	else if (sides == 2) // í•˜
 	{
 		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
 		if (pos == 1) enemy->setPosition(Vec2(origin.x + visibleSize.width*0.25, origin.y - gap));
 		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + visibleSize.width*0.5, origin.y - gap));
 		else if (pos == 3)   enemy->setPosition(Vec2(origin.x + visibleSize.width*0.75, origin.y - gap));
 	}
-	else if (sides == 3) // ÁÂ
+	else if (sides == 3) // ì¢Œ
 	{
 		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
 		if (pos == 1) enemy->setPosition(Vec2(origin.x - gap, origin.y + visibleSize.height*0.2));
@@ -158,7 +167,7 @@ void HelloWorld::initializeEnemy(float dt)
 		else if (pos == 3) enemy->setPosition(Vec2(origin.x - gap, origin.y + visibleSize.height*0.6));
 		else if (pos == 4) enemy->setPosition(Vec2(origin.x - gap, origin.y + visibleSize.height*0.8));
 	}
-	else if (sides == 4) // ¿ì
+	else if (sides == 4) // ìš°
 	{
 		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
 		if (pos == 1) enemy->setPosition(Vec2(origin.x + visibleSize.width + gap, origin.y + visibleSize.height*0.2));
@@ -167,7 +176,7 @@ void HelloWorld::initializeEnemy(float dt)
 		else if (pos == 4) enemy->setPosition(Vec2(origin.x + visibleSize.width + gap, origin.y + visibleSize.height*0.8));
 	}
 
-	//ÀÓ½Ã »çÀÌÁî Á¶Á¤
+	//ì„ì‹œ ì‚¬ì´ì¦ˆ ì¡°ì •
 	enemy->setScale(0.08f);
 
 	log("new!!, %f, %f", enemy->getPositionX(), enemy->getPositionY());
@@ -179,10 +188,10 @@ void HelloWorld::initializeEnemy(float dt)
 	else if (RandomHelper::random_int(1, 100) >= 25 && RandomHelper::random_int(1, 100) < 50)
 		y = -y;
 
-	//Àû È­¸é¿¡ »Ñ¸²
+	//ì  í™”ë©´ì— ë¿Œë¦¼
 	this->addChild(enemy);
 
-	//Àû º¤ÅÍ¿¡ µî·Ï, Àû½ºÇÁ¶óÀÌÆ®, ÇÁ·¹ÀÓ´ç ÀÌµ¿ÇÏ´Â x,y°ª
+	//ì  ë²¡í„°ì— ë“±ë¡, ì ìŠ¤í”„ë¼ì´íŠ¸, í”„ë ˆì„ë‹¹ ì´ë™í•˜ëŠ” x,yê°’
 	vecEnemy.push_back({ enemy, Point(x,y) });
 }
 
@@ -204,7 +213,7 @@ void HelloWorld::onTouchMoved(Touch* touch, Event* event) {
 	float x = pos_SpriteBefore.x + diff_x;
 	float y = pos_SpriteBefore.y + diff_y;
 	
-	//Ã¢Å©±â °Ë»ç
+	//ì°½í¬ê¸° ê²€ì‚¬
 	if (x > max_x) x = max_x;
 	if (x < min_x) x = min_x;
 	if (y > max_y) y = max_y;
