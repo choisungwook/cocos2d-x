@@ -11,22 +11,24 @@ public:
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
 
-	//°ÔÀÓ Èå¸§¿¡ °ü·ÃµÈ ÇÔ¼ö	
+	//ê²Œì„ íë¦„ì— ê´€ë ¨ëœ í•¨ìˆ˜	
 	void startGame(float dt);
 	void gameLogic(float dt);
 	bool isPlaying;
 
-	//ÅÍÄ¡ ÀÌº¥Æ® °ü·Ã ÇÔ¼ö
+	//í„°ì¹˜ ì´ë²¤íŠ¸ ê´€ë ¨ í•¨ìˆ˜
 	virtual bool onTouch(cocos2d::Touch* touch, cocos2d::Event* event);
 	virtual void onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event);
 	virtual void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);
 
-	//Ä³¸¯ÅÍ °ü·Ã ÇÔ¼ö
+	//ìºë¦­í„° ê´€ë ¨ í•¨ìˆ˜
 	void moveCharacter();	
 	void initalizeCharacter();
 
+	//Item Menu Layer
+	void initializeButtonLayer();
 
-	//Àû(ÃÑ¾Ë¿ªÇÒ) °ü·Ã ÇÔ¼ö & º¯¼ö
+	//ì (ì´ì•Œì—­í• ) ê´€ë ¨ í•¨ìˆ˜ & ë³€ìˆ˜
 	void initializeEnemy(float dt);
 	std::vector<std::pair<cocos2d::Sprite*, cocos2d::Point> > vecEnemy; //sprite, Point(movement x, movement y)
 	cocos2d::Size visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
@@ -38,7 +40,7 @@ private:
 	cocos2d::Vec2 pos_TouchBefore;
 	cocos2d::Vec2 pos_SpriteBefore;
 
-	//Ä³¸¯ÅÍ °ü·ÃµÈ º¯¼ö
+	//ìºë¦­í„° ê´€ë ¨ëœ ë³€ìˆ˜
 	float min_x;
 	float min_y;
 	float max_x;
