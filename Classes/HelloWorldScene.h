@@ -3,6 +3,7 @@
 
 #include "cocos2d.h"
 #include "Sprite_Character.h"
+#include "Sprite_enemy.h"
 
 class HelloWorld : public cocos2d::LayerColor
 {
@@ -38,7 +39,7 @@ private:
 	cocos2d::Sprite* sprite_Character; //게임캐릭터
 	cocos2d::Vec2 pos_TouchBefore;
 	cocos2d::Vec2 pos_SpriteBefore;
-
+	cocos2d::Vector<Enemy*> vector_enemies;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

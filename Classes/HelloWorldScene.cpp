@@ -1,5 +1,6 @@
 #include "HelloWorldScene.h"
 #include "SimpleAudioEngine.h"
+#include "VisibleRect.h"
 
 USING_NS_CC;
 
@@ -50,39 +51,13 @@ void HelloWorld::startGame(float dt)
 
 void HelloWorld::gameLogic(float dt)
 {
-	// ballMovement.y가 음수이면 볼이 내려오고 있는 것
-	// ballMovement.y가 양수이면 볼이 올라가고 있는 것
-	std::vector<std::pair<cocos2d::Sprite*, cocos2d::Point>>::iterator enmyIterator;
-	for (enmyIterator = vecEnemy.begin(); enmyIterator != vecEnemy.end(); ) {
-		auto enemy = enmyIterator->first;
-		auto enemyMovement = enmyIterator->second;
-
-		enemy->setPosition(Point(enemy->getPosition().x + enemyMovement.x,
-			enemy->getPosition().y + enemyMovement.y));
-
-		// 벽면 충돌 체크
-		if (enemy->getPosition().x > visibleSize.width || enemy->getPosition().x < 0)
-			enemyMovement.x = -enemyMovement.x;
-
-		if (enemy->getPosition().y > visibleSize.height || enemy->getPosition().y < 0)
-			enemyMovement.y = -enemyMovement.y;
-
-		//캐릭터 충돌 체크
-		Rect charRect = sprite_Character->getBoundingBox();
-		Rect enemyRect = enemy->getBoundingBox();
-
-		if (charRect.intersectsRect(enemyRect)) {
-			//MessageBox("Collision", "");
-			this->removeChild(enemy);
-			enemy->autorelease();
-			enmyIterator = vecEnemy.erase(enmyIterator);
-		}
-		else {
-			enmyIterator->first = enemy;
-			enmyIterator->second = enemyMovement;
-			enmyIterator++;
-		}
+	//공 움직임 
+	//벽면 충돌검사
+	for (auto& enemy : vector_enemies) {
+		enemy->move();
 	}
+
+	//캐릭터 충돌검사 추가 예정
 }
 
 /*******************************************
@@ -92,7 +67,7 @@ void HelloWorld::gameLogic(float dt)
 void HelloWorld::initalizeCharacter() {
 	//캐릭터 sprite 생성
 	sprite_Character = MyCharacter::create("character/1.png");
-	sprite_Character->setPosition(ccp((visibleSize.width / 2), (visibleSize.height / 2)));
+	sprite_Character->setPosition(ccp((VisibleRect::getVisibleRect().size.width / 2), (VisibleRect::getVisibleRect().size.width / 2)));
 	this->addChild(sprite_Character);
 
 	//애니메이션
@@ -109,65 +84,52 @@ void HelloWorld::initalizeCharacter() {
 void HelloWorld::initializeEnemy(float dt)
 {
 	//srand((unsigned)time(NULL));
-
 	visibleSize = Point(480, 320);
 
 	//적 이미지 가져오기
-	Sprite* enemy = Sprite::create("res/enemy.png");
+	Enemy* enemy = Enemy::create("enemy.png");
 
 	//적 생성
 	int sides = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
-	log("%d", sides);
 
 	int gap = -3;
 
 	if (sides == 1) { //상
 		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
-		if (pos == 1) enemy->setPosition(Vec2(origin.x + visibleSize.width*0.25, origin.y + visibleSize.height + gap));
-		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + visibleSize.width*0.5, origin.y + visibleSize.height + gap));
-		else if (pos == 3)    enemy->setPosition(Vec2(origin.x + visibleSize.width*0.75, origin.y + visibleSize.height + gap));
+		if (pos == 1) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width *0.25, origin.y + VisibleRect::getVisibleRect().size.width + gap));
+		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.5, origin.y + VisibleRect::getVisibleRect().size.width + gap));
+		else if (pos == 3)    enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.75, origin.y + VisibleRect::getVisibleRect().size.width + gap));
 	}
 	else if (sides == 2) // 하
 	{
 		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
-		if (pos == 1) enemy->setPosition(Vec2(origin.x + visibleSize.width*0.25, origin.y - gap));
-		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + visibleSize.width*0.5, origin.y - gap));
-		else if (pos == 3)   enemy->setPosition(Vec2(origin.x + visibleSize.width*0.75, origin.y - gap));
+		if (pos == 1) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.25, origin.y - gap));
+		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.5, origin.y - gap));
+		else if (pos == 3)   enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.75, origin.y - gap));
 	}
 	else if (sides == 3) // 좌
 	{
 		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
-		if (pos == 1) enemy->setPosition(Vec2(origin.x - gap, origin.y + visibleSize.height*0.2));
-		else if (pos == 2) enemy->setPosition(Vec2(origin.x - gap, origin.y + visibleSize.height*0.4));
-		else if (pos == 3) enemy->setPosition(Vec2(origin.x - gap, origin.y + visibleSize.height*0.6));
-		else if (pos == 4) enemy->setPosition(Vec2(origin.x - gap, origin.y + visibleSize.height*0.8));
+		if (pos == 1) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.2));
+		else if (pos == 2) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.4));
+		else if (pos == 3) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.6));
+		else if (pos == 4) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.8));
 	}
 	else if (sides == 4) // 우
 	{
 		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
-		if (pos == 1) enemy->setPosition(Vec2(origin.x + visibleSize.width + gap, origin.y + visibleSize.height*0.2));
-		else if (pos == 2) enemy->setPosition(Vec2(origin.x + visibleSize.width + gap, origin.y + visibleSize.height*0.4));
-		else if (pos == 3) enemy->setPosition(Vec2(origin.x + visibleSize.width + gap, origin.y + visibleSize.height*0.6));
-		else if (pos == 4) enemy->setPosition(Vec2(origin.x + visibleSize.width + gap, origin.y + visibleSize.height*0.8));
+		if (pos == 1) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.2));
+		else if (pos == 2) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.4));
+		else if (pos == 3) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.6));
+		else if (pos == 4) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.8));
 	}
-
-	//임시 사이즈 조정
-	enemy->setScale(0.08f);
-
-	log("new!!, %f, %f", enemy->getPositionX(), enemy->getPositionY());
-
-	int x = 2, y = 2;
-
-	if (RandomHelper::random_int(1, 100) < 25)
-		x = -x;
-	else if (RandomHelper::random_int(1, 100) >= 25 && RandomHelper::random_int(1, 100) < 50)
-		y = -y;
-
+	
 	//적 화면에 뿌림
 	this->addChild(enemy);
 
 	//적 벡터에 등록, 적스프라이트, 프레임당 이동하는 x,y값
-	vecEnemy.push_back({ enemy, Point(x,y) });
+	enemy->setvelocity(Vec2(2, 2));
+	vector_enemies.pushBack(enemy);
 }
 
 /*******************************************

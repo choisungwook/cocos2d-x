@@ -1,4 +1,5 @@
 #include "Sprite_Character.h"
+#include "VisibleRect.h"
 USING_NS_CC;
 
 
@@ -83,11 +84,10 @@ void MyCharacter::onEnter()
 	float character_height = this->getContentSize().height;
 
 	//캐릭터가 이동할 수 있는 최소,최대크기(상대적 거리)
-	auto visibleSize = Director::getInstance()->getWinSize();
 	min_x = 0 + character_width / 2;
-	max_x = visibleSize.width - character_width / 2;
+	max_x = VisibleRect::getVisibleRect().size.width - character_width / 2;
 	min_y = 0 + character_height / 2;
-	max_y = visibleSize.height - character_height / 2;
+	max_y = VisibleRect::getVisibleRect().size.height - character_height / 2;
 }
 
 void MyCharacter::onExit()
