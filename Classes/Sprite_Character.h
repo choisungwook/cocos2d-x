@@ -27,7 +27,6 @@ public:
 	//적들과 충돌체크
 	bool collisionWithEnemy(Enemy* enemy);
 
-
 	//Life cycles
 	virtual void onEnter() override;
 	virtual void onExit() override;

@@ -66,17 +66,19 @@ void MyCharacter::onTouchEnded(cocos2d::Touch * touch, cocos2d::Event * event)
 
 Rect MyCharacter::collisionRegion()
 {
-	auto boudingBox = getBoundingBox();
-	boudingBox.setRect(boudingBox.getMinX(), boudingBox.getMinY(), \
-		boudingBox.getMaxX(), boudingBox.getMaxY());
+	auto r = getBoundingBox();
+	auto pos = getPosition();
 
-	return boudingBox;
+	r.origin = ccp(pos.x - r.size.width/2 * 0.4 , pos.y - r.size.height/2 * 0.5 );
+	r.size = Size(r.size.width/2 * 0.75, r.size.height / 2 * 0.65);
+
+	return r;
 }
 
 //적들과 충돌체크
 bool MyCharacter::collisionWithEnemy(Enemy* enemy)
 {
-	auto characterRect = getBoundingBox();
+	auto characterRect = collisionRegion();
 	auto enemyRect = enemy->getBoundingBox();
 
 	if (characterRect.intersectsRect(enemyRect)) {
@@ -109,6 +111,7 @@ void MyCharacter::onEnter()
 	max_x = VisibleRect::getVisibleRect().size.width - character_width / 2;
 	min_y = 0 + character_height / 2;
 	max_y = VisibleRect::getVisibleRect().size.height - character_height / 2;
+
 }
 
 void MyCharacter::onExit()

@@ -30,10 +30,12 @@ bool HelloWorld::init()
 		
 	//캐릭터 초기화 및 생성 
 	initalizeCharacter();
+
 	// 적 초기화 및 생성 ( 1초 )
 	this->schedule(schedule_selector(HelloWorld::initializeEnemy), 1.0f);
 	// 1초후 게임 시작
 	this->scheduleOnce(schedule_selector(HelloWorld::startGame), 1.0f);
+
 	return true;
 }
 
@@ -76,9 +78,17 @@ void HelloWorld::gameLogic(float dt)
 void HelloWorld::initalizeCharacter() {
 	//캐릭터 sprite 생성
 	sprite_Character = MyCharacter::create("character/1.png");
-	sprite_Character->setPosition(ccp((VisibleRect::getVisibleRect().size.width / 2), (VisibleRect::getVisibleRect().size.width / 2)));
+	sprite_Character->setPosition(ccp((VisibleRect::getVisibleRect().size.width / 2), (VisibleRect::getVisibleRect().size.height / 2)));
 	this->addChild(sprite_Character);
-
+	
+	//충돌박스 그리기
+	auto draw = DrawNode::create();
+	auto checkBox = sprite_Character->collisionRegion();
+	draw->drawRect(checkBox.origin, checkBox.origin + checkBox.size, Color4F(1, 0, 0, 1));
+	draw->setPosition(ccp(-VisibleRect::getVisibleRect().size.width/2 + sprite_Character->getContentSize().width/2,
+		-VisibleRect::getVisibleRect().size.height/2 + sprite_Character->getContentSize().height/2));
+	sprite_Character->addChild(draw);
+	
 	//애니메이션
 	//plist를 이용하는 편이 리소스를 줄이지만 유료프로그램밖에 없으므로
 	//일일이 이미지를 애니메이션에 추가한다. ㅜ.ㅜ
