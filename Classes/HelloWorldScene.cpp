@@ -26,24 +26,16 @@ bool HelloWorld::init()
     if ( !LayerColor::initWithColor(Color4B(255, 255, 255, 255))) {
         return false;
     }   
-	//ìºë¦­í„° ì´ˆê¸°í™” ë° ìƒì„± 
+		
+	//Ä³¸¯ÅÍ ÃÊ±âÈ­ ¹× »ı¼º 
 	initalizeCharacter();
-	// ì  ì´ˆê¸°í™” ë° ìƒì„± ( 1ì´ˆ )
+	// Àû ÃÊ±âÈ­ ¹× »ı¼º ( 1ÃÊ )
 	this->schedule(schedule_selector(HelloWorld::initializeEnemy), 1.0f);
-	// 1ì´ˆí›„ ê²Œì„ ì‹œì‘
+	// 1ÃÊÈÄ °ÔÀÓ ½ÃÀÛ
 	this->scheduleOnce(schedule_selector(HelloWorld::startGame), 1.0f);
 
     return true;
 }
-
-/*******************************************
-	Menu Item Layer
-********************************************/
-void initializeButtonLayer()
-{
-}
-
-
 
 /*******************************************
 	Game Update
@@ -58,9 +50,8 @@ void HelloWorld::startGame(float dt)
 
 void HelloWorld::gameLogic(float dt)
 {
-	// enemyMovement.yê°€ ìŒìˆ˜ì´ë©´ ì ì´ ë‚´ë ¤ì˜¤ê³  ìˆëŠ” ê²ƒ.
-	// enemyMovement.yê°€ ì–‘ìˆ˜ì´ë©´ ì ì´ ì˜¬ë¼ê°€ê³  ìˆëŠ” ê²ƒ.
-
+	// ballMovement.y°¡ À½¼öÀÌ¸é º¼ÀÌ ³»·Á¿À°í ÀÖ´Â °Í
+	// ballMovement.y°¡ ¾ç¼öÀÌ¸é º¼ÀÌ ¿Ã¶ó°¡°í ÀÖ´Â °Í
 	std::vector<std::pair<cocos2d::Sprite*, cocos2d::Point>>::iterator enmyIterator;
 	for (enmyIterator = vecEnemy.begin(); enmyIterator != vecEnemy.end(); ) {
 		auto enemy = enmyIterator->first;
@@ -69,14 +60,14 @@ void HelloWorld::gameLogic(float dt)
 		enemy->setPosition(Point(enemy->getPosition().x + enemyMovement.x,
 			enemy->getPosition().y + enemyMovement.y));
 
-		// ë²½ë©´ ì¶©ëŒ ì²´í¬
+		// º®¸é Ãæµ¹ Ã¼Å©
 		if (enemy->getPosition().x > visibleSize.width || enemy->getPosition().x < 0)
 			enemyMovement.x = -enemyMovement.x;
 
 		if (enemy->getPosition().y > visibleSize.height || enemy->getPosition().y < 0)
 			enemyMovement.y = -enemyMovement.y;
 
-		//ìºë¦­í„° ì¶©ëŒ ì²´í¬
+		//Ä³¸¯ÅÍ Ãæµ¹ Ã¼Å©
 		Rect charRect = sprite_Character->getBoundingBox();
 		Rect enemyRect = enemy->getBoundingBox();
 
@@ -92,7 +83,6 @@ void HelloWorld::gameLogic(float dt)
 			enmyIterator++;
 		}
 	}
-
 }
 
 /*******************************************
@@ -100,44 +90,16 @@ void HelloWorld::gameLogic(float dt)
 ********************************************/
 
 void HelloWorld::initalizeCharacter() {
-	//[sprite] ì• ë‹ˆë©”ì´ì…˜ê´€ë ¨ ë§ˆìš°ìŠ¤ë¡œ ì›€ì§ì¼ ìºë¦­í„°
-	sprite_AnimationCharacter = Sprite::create("res/monster.png");
-	auto texture = sprite_AnimationCharacter->getTexture();
-	//[animation]
-	auto animation = Animation::create();
-	animation->setDelayPerUnit(0.3f);
-
-	for (int i = 0; i < 4; i++) {
-		animation->addSpriteFrameWithTexture(texture, Rect(i * 64, 0, 64, 64));
-	}
-	auto animate = Animate::create(animation);
-	auto action_foreverRepeat = RepeatForever::create(animate);
-
-	//[sprite] ë§ˆìš°ìŠ¤ë¡œ ì›€ì§ì¼ ìºë¦­í„°
-	sprite_Character = Sprite::create("res/monster.png", Rect(0, 0, 64, 64));
-	sprite_Character->setPosition(ccp(visibleSize.width / 2, visibleSize.height / 2));
+	//Ä³¸¯ÅÍ sprite »ı¼º
+	sprite_Character = MyCharacter::create("character/1.png");
+	sprite_Character->setPosition(ccp((visibleSize.width / 2), (visibleSize.height / 2)));
 	this->addChild(sprite_Character);
 
-	//ì•¡ì…˜ ë“±ë¡
-	sprite_Character->runAction(action_foreverRepeat);
-
-	//ì´ë²¤íŠ¸
-	auto listener = EventListenerTouchOneByOne::create();
-	listener->setSwallowTouches(true);
-	listener->onTouchBegan = CC_CALLBACK_2(HelloWorld::onTouch, this);
-	listener->onTouchMoved = CC_CALLBACK_2(HelloWorld::onTouchMoved, this);
-	listener->onTouchEnded = CC_CALLBACK_2(HelloWorld::onTouchEnded, this);
-	_eventDispatcher->addEventListenerWithSceneGraphPriority(listener, sprite_Character);
-	
-	//ìºë¦­í„°ê°€ í™”ë©´ ë²”ìœ„ ë°–ì— ë‚˜ê°€ì§€ ëª»í•˜ë„ë¡ ...
-	float character_width = sprite_Character->getContentSize().width;
-	float character_height = sprite_Character->getContentSize().height;
-
-	//ìºë¦­í„°ê°€ ì´ë™í•  ìˆ˜ ìˆëŠ” ìµœì†Œ,ìµœëŒ€í¬ê¸°(ìƒëŒ€ì  ê±°ë¦¬)
-	min_x = 0 + character_width / 2;
-	max_x = visibleSize.width - character_width / 2;
-	min_y = 0 + character_height / 2;
-	max_y = visibleSize.height - character_height / 2;
+	//¾Ö´Ï¸ŞÀÌ¼Ç
+	//plist¸¦ ÀÌ¿ëÇÏ´Â ÆíÀÌ ¸®¼Ò½º¸¦ ÁÙÀÌÁö¸¸ À¯·áÇÁ·Î±×·¥¹Û¿¡ ¾øÀ¸¹Ç·Î
+	//ÀÏÀÏÀÌ ÀÌ¹ÌÁö¸¦ ¾Ö´Ï¸ŞÀÌ¼Ç¿¡ Ãß°¡ÇÑ´Ù. ¤Ì.¤Ì
+	auto animation = Animation::create();
+	animation->setDelayPerUnit(0.1f);	
 }
 
 /*******************************************
@@ -150,29 +112,29 @@ void HelloWorld::initializeEnemy(float dt)
 
 	visibleSize = Point(480, 320);
 
-	//ì  ì´ë¯¸ì§€ ê°€ì ¸ì˜¤ê¸°
+	//Àû ÀÌ¹ÌÁö °¡Á®¿À±â
 	Sprite* enemy = Sprite::create("res/enemy.png");
 
-	//ì  ìƒì„±
+	//Àû »ı¼º
 	int sides = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
 	log("%d", sides);
 
 	int gap = -3;
 
-	if (sides == 1) { //ìƒ
+	if (sides == 1) { //»ó
 		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
 		if (pos == 1) enemy->setPosition(Vec2(origin.x + visibleSize.width*0.25, origin.y + visibleSize.height + gap));
 		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + visibleSize.width*0.5, origin.y + visibleSize.height + gap));
 		else if (pos == 3)    enemy->setPosition(Vec2(origin.x + visibleSize.width*0.75, origin.y + visibleSize.height + gap));
 	}
-	else if (sides == 2) // í•˜
+	else if (sides == 2) // ÇÏ
 	{
 		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
 		if (pos == 1) enemy->setPosition(Vec2(origin.x + visibleSize.width*0.25, origin.y - gap));
 		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + visibleSize.width*0.5, origin.y - gap));
 		else if (pos == 3)   enemy->setPosition(Vec2(origin.x + visibleSize.width*0.75, origin.y - gap));
 	}
-	else if (sides == 3) // ì¢Œ
+	else if (sides == 3) // ÁÂ
 	{
 		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
 		if (pos == 1) enemy->setPosition(Vec2(origin.x - gap, origin.y + visibleSize.height*0.2));
@@ -180,7 +142,7 @@ void HelloWorld::initializeEnemy(float dt)
 		else if (pos == 3) enemy->setPosition(Vec2(origin.x - gap, origin.y + visibleSize.height*0.6));
 		else if (pos == 4) enemy->setPosition(Vec2(origin.x - gap, origin.y + visibleSize.height*0.8));
 	}
-	else if (sides == 4) // ìš°
+	else if (sides == 4) // ¿ì
 	{
 		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
 		if (pos == 1) enemy->setPosition(Vec2(origin.x + visibleSize.width + gap, origin.y + visibleSize.height*0.2));
@@ -189,7 +151,7 @@ void HelloWorld::initializeEnemy(float dt)
 		else if (pos == 4) enemy->setPosition(Vec2(origin.x + visibleSize.width + gap, origin.y + visibleSize.height*0.8));
 	}
 
-	//ì„ì‹œ ì‚¬ì´ì¦ˆ ì¡°ì •
+	//ÀÓ½Ã »çÀÌÁî Á¶Á¤
 	enemy->setScale(0.08f);
 
 	log("new!!, %f, %f", enemy->getPositionX(), enemy->getPositionY());
@@ -201,10 +163,10 @@ void HelloWorld::initializeEnemy(float dt)
 	else if (RandomHelper::random_int(1, 100) >= 25 && RandomHelper::random_int(1, 100) < 50)
 		y = -y;
 
-	//ì  í™”ë©´ì— ë¿Œë¦¼
+	//Àû È­¸é¿¡ »Ñ¸²
 	this->addChild(enemy);
 
-	//ì  ë²¡í„°ì— ë“±ë¡, ì ìŠ¤í”„ë¼ì´íŠ¸, í”„ë ˆì„ë‹¹ ì´ë™í•˜ëŠ” x,yê°’
+	//Àû º¤ÅÍ¿¡ µî·Ï, Àû½ºÇÁ¶óÀÌÆ®, ÇÁ·¹ÀÓ´ç ÀÌµ¿ÇÏ´Â x,y°ª
 	vecEnemy.push_back({ enemy, Point(x,y) });
 }
 
@@ -212,35 +174,14 @@ void HelloWorld::initializeEnemy(float dt)
 	Touch Event
 ********************************************/
 bool HelloWorld::onTouch(cocos2d::Touch* touch, cocos2d::Event* event) {
-	pos_TouchBefore = touch->getLocation();
-	pos_SpriteBefore = sprite_Character->getPosition();
-	return true;
+	
+	return false;
 }
 
 void HelloWorld::onTouchMoved(Touch* touch, Event* event) {
-	auto pos_cur = touch->getLocation();
-	auto pos_character = sprite_Character->getPosition();
-	float diff_x = pos_cur.x - pos_TouchBefore.x;
-	float diff_y = pos_cur.y - pos_TouchBefore.y;
-
-	float x = pos_SpriteBefore.x + diff_x;
-	float y = pos_SpriteBefore.y + diff_y;
 	
-	//ì°½í¬ê¸° ê²€ì‚¬
-	if (x > max_x) x = max_x;
-	if (x < min_x) x = min_x;
-	if (y > max_y) y = max_y;
-	if (y < min_y) y = min_y;
-
-	sprite_Character->setPosition(ccp(x, y));
 }
 
 void HelloWorld::onTouchEnded(Touch* touch, Event* event) {
-
-
-
-}
-
-void HelloWorld::moveCharacter() {
 
 }
