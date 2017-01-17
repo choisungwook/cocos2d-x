@@ -2,7 +2,6 @@
 #include "VisibleRect.h"
 USING_NS_CC;
 
-
 MyCharacter* MyCharacter::create(const std::string & filename)
 {
 	MyCharacter *sprite = new (std::nothrow) MyCharacter();
@@ -16,10 +15,6 @@ MyCharacter* MyCharacter::create(const std::string & filename)
 	return nullptr;
 }
 
-/*******************************************
-Touch Event
-********************************************/
-
 MyCharacter::MyCharacter()
 {
 }
@@ -27,6 +22,10 @@ MyCharacter::MyCharacter()
 MyCharacter::~MyCharacter()
 {
 }
+
+/*******************************************
+Touch Event
+********************************************/
 
 bool MyCharacter::onTouchBegan(cocos2d::Touch * touch, cocos2d::Event * event)
 {
@@ -63,6 +62,28 @@ void MyCharacter::onTouchMoved(cocos2d::Touch * touch, cocos2d::Event * event)
 void MyCharacter::onTouchEnded(cocos2d::Touch * touch, cocos2d::Event * event)
 {
 	_state = state_UnTouched;
+}
+
+Rect MyCharacter::collisionRegion()
+{
+	auto boudingBox = getBoundingBox();
+	boudingBox.setRect(boudingBox.getMinX(), boudingBox.getMinY(), \
+		boudingBox.getMaxX(), boudingBox.getMaxY());
+
+	return boudingBox;
+}
+
+//적들과 충돌체크
+bool MyCharacter::collisionWithEnemy(Enemy* enemy)
+{
+	auto characterRect = getBoundingBox();
+	auto enemyRect = enemy->getBoundingBox();
+
+	if (characterRect.intersectsRect(enemyRect)) {
+		return true;
+	}
+
+	return false;
 }
 
 void MyCharacter::onEnter()

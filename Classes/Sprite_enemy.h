@@ -12,7 +12,7 @@ public:
 	static Enemy* create(const std::string & filename);
 
 	void move(); // 이동
-	float radius(); //반지름
+	float radius(); //반지름 계산
 
 	virtual void onEnter() override;
 	virtual void onExit() override;

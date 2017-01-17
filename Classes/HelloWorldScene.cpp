@@ -34,8 +34,7 @@ bool HelloWorld::init()
 	this->schedule(schedule_selector(HelloWorld::initializeEnemy), 1.0f);
 	// 1초후 게임 시작
 	this->scheduleOnce(schedule_selector(HelloWorld::startGame), 1.0f);
-
-    return true;
+	return true;
 }
 
 /*******************************************
@@ -51,13 +50,23 @@ void HelloWorld::startGame(float dt)
 
 void HelloWorld::gameLogic(float dt)
 {
-	//공 움직임 
+	//적 이동 
 	//벽면 충돌검사
 	for (auto& enemy : vector_enemies) {
-		enemy->move();
+		enemy->move();		
 	}
 
-	//캐릭터 충돌검사 추가 예정
+	//캐릭터 충돌검사
+	for (auto iter_enemy = vector_enemies.begin(); iter_enemy != vector_enemies.end();)
+	{		
+		if (sprite_Character->collisionWithEnemy(*iter_enemy)) {
+			removeChild(*iter_enemy); //auto relase속성 때문에 수동으로 release를 하면 안될 것같다.
+			iter_enemy = vector_enemies.erase(iter_enemy);
+		}
+		else {
+			++iter_enemy;
+		}
+	}
 }
 
 /*******************************************
@@ -74,7 +83,16 @@ void HelloWorld::initalizeCharacter() {
 	//plist를 이용하는 편이 리소스를 줄이지만 유료프로그램밖에 없으므로
 	//일일이 이미지를 애니메이션에 추가한다. ㅜ.ㅜ
 	auto animation = Animation::create();
-	animation->setDelayPerUnit(0.1f);	
+	animation->setDelayPerUnit(0.1f);
+
+	for (int i = 1; i <= 5; i++) {
+		char imgpath[100] = { 0, };
+		sprintf(imgpath, "character/%d.png", i);
+		animation->addSpriteFrameWithFile(imgpath);
+	}
+
+	auto animate = Animate::create(animation);
+	sprite_Character->runAction(RepeatForever::create(animate));
 }
 
 /*******************************************
