@@ -31,8 +31,6 @@ public:
 
 	//적(총알역할) 관련 함수 & 변수
 	void initializeEnemy(float dt);
-	std::vector<std::pair<cocos2d::Sprite*, cocos2d::Point> > vecEnemy; //sprite, Point(movement x, movement y)
-	cocos2d::Size visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
 	cocos2d::Vec2 origin = cocos2d::Director::getInstance()->getVisibleOrigin();
 
 private:

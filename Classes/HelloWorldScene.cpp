@@ -83,15 +83,11 @@ void HelloWorld::initalizeCharacter() {
 
 void HelloWorld::initializeEnemy(float dt)
 {
-	//srand((unsigned)time(NULL));
-	visibleSize = Point(480, 320);
-
 	//적 이미지 가져오기
 	Enemy* enemy = Enemy::create("enemy.png");
 
-	//적 생성
+	//적 생성하는 방향 결정
 	int sides = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
-
 	int gap = -3;
 
 	if (sides == 1) { //상
