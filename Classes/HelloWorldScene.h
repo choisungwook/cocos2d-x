@@ -26,8 +26,15 @@ public:
 	//캐릭터 관련 함수
 	void initalizeCharacter();
 
-	//test
+	//test Option Layer
+	cocos2d::Layer* OptionLayer = NULL;
+	cocos2d::Sprite* rect;
+	bool isPause = false;
+	void initalizeMenu();
 	void ButtonCallback(Ref* pSender);
+	void OptionCallback(Ref* pSender);
+	void CloseGameCallback(Ref* pSender);
+	void ReturnGameCallback(Ref* pSender);
 
 	//적(총알역할) 관련 함수 & 변수
 	void initializeEnemy(float dt);
