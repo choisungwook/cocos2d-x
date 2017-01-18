@@ -1,17 +1,16 @@
-#include "LogoScene.h"
 #include "MenuScene.h"
-#include "VisibleRect.h"
+#include "HelloWorldScene.h"
 USING_NS_CC;
 
-Scene* Logo::createScene()
+Scene* MenuScene::createScene()
 {
 	auto scene = Scene::create();
-	auto layer = Logo::create();
+	auto layer = MenuScene::create();
 	scene->addChild(layer);
 	return scene;
 }
 
-bool Logo::init()
+bool MenuScene::init()
 {
 	if (!LayerColor::initWithColor(Color4B::WHITE))
 	{
@@ -29,17 +28,17 @@ bool Logo::init()
 	logo->setPosition(Point(Director::getInstance()->getWinSize().width / 2, Director::getInstance()->getWinSize().height / 2));
 	this->addChild(logo);
 
-	auto scene = CallFuncN::create(CC_CALLBACK_1(Logo::changeScene, this));
+	auto scene = CallFuncN::create(CC_CALLBACK_1(MenuScene::changeScene, this));
 	this->runAction(scene);
 
 	return true;
 }
 
-void Logo::changeScene(Object *pSender)
+void MenuScene::changeScene(Object *pSender)
 {
-	auto logo_change = MenuScene::createScene();
+	auto playScene_change = HelloWorld::createScene();
 
-	TransitionScene * pTran = TransitionFade::create(3.0f, logo_change);
+	TransitionScene * pTran = TransitionFade::create(2.0f, playScene_change);
 
 	Director::getInstance()->replaceScene(pTran);
 }
