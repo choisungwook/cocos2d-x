@@ -27,7 +27,9 @@ bool HelloWorld::init()
     if ( !LayerColor::initWithColor(Color4B(255, 255, 255, 255))) {
         return false;
     }   
-		
+
+	//메뉴 생성
+	initalizeMenu();
 	//캐릭터 초기화 및 생성 
 	initalizeCharacter();
 	// 적 초기화 및 생성 ( 1초 )
@@ -37,7 +39,102 @@ bool HelloWorld::init()
 
     return true;
 }
+void HelloWorld::initalizeMenu()
+{
+	//test option button
+	auto sprOption = MenuItemImage::create("settings.png", "settings.png", CC_CALLBACK_1(HelloWorld::OptionCallback, this));
+	sprOption->setScale(0.5f);
 
+	auto menuOption = Menu::create(sprOption, NULL);
+	menuOption->setPosition(ccp((VisibleRect::getVisibleRect().size.width*0.9), (VisibleRect::getVisibleRect().size.height*0.9)));
+	this->addChild(menuOption, 1);
+
+	log("%f %f", (VisibleRect::getVisibleRect().size.width*0.9, VisibleRect::getVisibleRect().size.height*0.9));
+
+	//item button
+	auto sprButton = MenuItemImage::create("power.png", "power1.png", CC_CALLBACK_1(HelloWorld::ButtonCallback, this));
+	sprButton->setScale(0.7f);
+
+	auto menu = Menu::create(sprButton, NULL);
+	menu->setPosition(ccp(VisibleRect::getVisibleRect().size.width*0.9, VisibleRect::getVisibleRect().size.height*0.2));
+	this->addChild(menu, 1);
+
+	/*
+	auto sprtest = Sprite::create("1.jpg");
+	sprtest->setPosition(menuOption->getPosition());
+	this->addChild(sprtest);
+	*/
+}
+
+/*******************************************
+Game menu
+********************************************/
+
+void HelloWorld::OptionCallback(Ref* pSender)
+{
+	log("Option open");
+
+	if (isPause == false) {
+		isPause = true;
+		Director::getInstance()->getScheduler()->pauseTarget(this); //스케줄러 정지
+
+		if (OptionLayer == NULL) {
+			OptionLayer = Layer::create();
+			this->addChild(OptionLayer, 2);
+		}
+
+		sprite_Character->stopAllActions();
+
+		Rect rectOption = OptionLayer->getBoundingBox();
+
+		rect = Sprite::create("option.jpg");
+		rect->setOpacity(150);
+		rect->setPosition(Point(rectOption.getMaxX() / 2, rectOption.getMaxY() / 2));
+		OptionLayer->addChild(rect);
+
+		auto returnButton = MenuItemImage::create("returngame.jpg", "returngame.jpg", CC_CALLBACK_1(HelloWorld::ReturnGameCallback, this));
+
+		auto CloseGameButton = MenuItemImage::create("endgame.jpg", "endgame.jpg", CC_CALLBACK_1(HelloWorld::CloseGameCallback, this));
+		auto menu = Menu::create(returnButton, CloseGameButton, NULL);
+		menu->setOpacity(180);
+		menu->alignItemsVertically();
+		menu->setPosition(ccp(rectOption.getMaxX() / 2, rectOption.getMaxY() / 2));
+		OptionLayer->addChild(menu);
+	}
+	else {
+		isPause = false;
+		Director::getInstance()->getScheduler()->resumeTarget(this);
+		OptionLayer->removeAllChildren();
+		sprite_Character->resume();
+	}
+}
+
+void HelloWorld::ReturnGameCallback(Ref* pSender)
+{
+	isPause = false;
+	Director::getInstance()->getScheduler()->resumeTarget(this);
+	OptionLayer->removeAllChildren();
+	sprite_Character->resume();
+}
+
+void HelloWorld::CloseGameCallback(Ref* pSender)
+{
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.", "Alert");
+	return;
+#endif
+	Director::getInstance()->end();
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+	exit(0);
+#endif
+}
+
+void HelloWorld::ButtonCallback(Ref* pSender)
+{
+	log("callback");
+	//item button call back
+}
 /*******************************************
 	Game Update
 ********************************************/
