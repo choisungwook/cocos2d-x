@@ -1,6 +1,7 @@
 #include "HelloWorldScene.h"
 #include "SimpleAudioEngine.h"
 #include "VisibleRect.h"
+#include <string>
 
 USING_NS_CC;
 
@@ -36,6 +37,9 @@ bool HelloWorld::init()
 	this->schedule(schedule_selector(HelloWorld::initializeEnemy), 1.0f);
 	// 1초후 게임 시작
 	this->scheduleOnce(schedule_selector(HelloWorld::startGame), 1.0f);
+	// time counting 0.1s
+	initTimer();
+	this->schedule(schedule_selector(HelloWorld::UpdateTimer), 0.1f);
 
     return true;
 }
@@ -65,6 +69,37 @@ void HelloWorld::initalizeMenu()
 	this->addChild(sprtest);
 	*/
 }
+/*******************************************
+timer
+********************************************/
+void HelloWorld::initTimer()
+{
+	timerLabel = Label::createWithSystemFont("", "Ariel", 20);
+	timerLabel->setColor(Color3B::ORANGE);
+	timerLabel->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height*0.9);
+	this->addChild(timerLabel);
+}
+void HelloWorld::UpdateTimer(float dt)
+{
+	chkTime += 0.1;
+	char timeScore[100] = { 0 };
+	sprintf(timeScore, "%.1f", chkTime);
+	
+	timerLabel->setString(timeScore);
+}
+/*******************************************
+Save data (testing)
+********************************************/
+
+void HelloWorld::SaveData() {
+	UserDefault::getInstance()->setDoubleForKey("data", chkTime);
+	UserDefault::getInstance()->flush();
+}
+
+void HelloWorld::LoadData() {
+	chkTime	= UserDefault::getInstance()->getDoubleForKey("data");
+}
+
 
 /*******************************************
 Game menu

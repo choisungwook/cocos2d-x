@@ -36,6 +36,16 @@ public:
 	void CloseGameCallback(Ref* pSender);
 	void ReturnGameCallback(Ref* pSender);
 
+	//timer
+	double chkTime = 0;
+	Label* timerLabel;
+	void initTimer();
+	void UpdateTimer(float dt);
+
+	//data save & road
+	void SaveData();
+	void LoadData();
+
 	//적(총알역할) 관련 함수 & 변수
 	void initializeEnemy(float dt);
 	cocos2d::Vec2 origin = cocos2d::Director::getInstance()->getVisibleOrigin();
