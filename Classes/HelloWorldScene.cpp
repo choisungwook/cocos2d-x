@@ -1,34 +1,37 @@
 #include "HelloWorldScene.h"
 #include "SimpleAudioEngine.h"
 #include "VisibleRect.h"
+#include "MenuScene.h"
 #include <string>
 
 USING_NS_CC;
 
 Scene* HelloWorld::createScene()
 {
-    // 'scene' is an autorelease object
-    auto scene = Scene::create();
-    
-    // 'layer' is an autorelease object
-    auto layer = HelloWorld::create();
+	// 'scene' is an autorelease object
+	auto scene = Scene::create();
 
-    // add layer as a child to scene
-    scene->addChild(layer);
+	// 'layer' is an autorelease object
+	auto layer = HelloWorld::create();
 
-    // return the scene
-    return scene;
+	// add layer as a child to scene
+	scene->addChild(layer);
+
+	// return the scene
+	return scene;
 }
 
 // on "init" you need to initialize your instance
 bool HelloWorld::init()
 {
-    //////////////////////////////
-    // 1. super init first
-    if ( !LayerColor::initWithColor(Color4B(255, 255, 255, 255))) {
-        return false;
-    }   
+	//////////////////////////////
+	// 1. super init first
+	if (!LayerColor::initWithColor(Color4B(255, 255, 255, 255))) {
+		return false;
+	}
 
+	//dataLoading
+	LoadData();
 	//메뉴 생성
 	initalizeMenu();
 	//캐릭터 초기화 및 생성 
@@ -41,7 +44,7 @@ bool HelloWorld::init()
 	initTimer();
 	this->schedule(schedule_selector(HelloWorld::UpdateTimer), 0.1f);
 
-    return true;
+	return true;
 }
 void HelloWorld::initalizeMenu()
 {
@@ -84,20 +87,25 @@ void HelloWorld::UpdateTimer(float dt)
 	chkTime += 0.1;
 	char timeScore[100] = { 0 };
 	sprintf(timeScore, "%.1f", chkTime);
-	
+
 	timerLabel->setString(timeScore);
 }
+
 /*******************************************
 Save data (testing)
 ********************************************/
-
 void HelloWorld::SaveData() {
-	UserDefault::getInstance()->setDoubleForKey("data", chkTime);
-	UserDefault::getInstance()->flush();
+
+	LoadData();
+	if (MaxTime < (int)chkTime)
+	{
+		UserDefault::getInstance()->setDoubleForKey("data", chkTime);
+		UserDefault::getInstance()->flush();
+	}
 }
 
 void HelloWorld::LoadData() {
-	chkTime	= UserDefault::getInstance()->getDoubleForKey("data");
+	MaxTime = UserDefault::getInstance()->getDoubleForKey("data");
 }
 
 
@@ -128,9 +136,9 @@ void HelloWorld::OptionCallback(Ref* pSender)
 		OptionLayer->addChild(rect);
 
 		auto returnButton = MenuItemImage::create("returngame.jpg", "returngame.jpg", CC_CALLBACK_1(HelloWorld::ReturnGameCallback, this));
-
+		auto backButton = MenuItemImage::create("backgame.jpg", "backgame.jpg", CC_CALLBACK_1(HelloWorld::ReturnScene, this));
 		auto CloseGameButton = MenuItemImage::create("endgame.jpg", "endgame.jpg", CC_CALLBACK_1(HelloWorld::CloseGameCallback, this));
-		auto menu = Menu::create(returnButton, CloseGameButton, NULL);
+		auto menu = Menu::create(returnButton, backButton, CloseGameButton, NULL);
 		menu->setOpacity(180);
 		menu->alignItemsVertically();
 		menu->setPosition(ccp(rectOption.getMaxX() / 2, rectOption.getMaxY() / 2));
@@ -158,6 +166,7 @@ void HelloWorld::CloseGameCallback(Ref* pSender)
 	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.", "Alert");
 	return;
 #endif
+	SaveData();
 	Director::getInstance()->end();
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
@@ -170,8 +179,17 @@ void HelloWorld::ButtonCallback(Ref* pSender)
 	log("callback");
 	//item button call back
 }
+
+void HelloWorld::ReturnScene(Ref* pSender)
+{
+	SaveData(); // max Time save
+	auto pTran = MenuScene::createScene();
+	Director::getInstance()->replaceScene(pTran);
+}
+
+
 /*******************************************
-	Game Update
+Game Update
 ********************************************/
 
 void HelloWorld::startGame(float dt)
@@ -193,7 +211,7 @@ void HelloWorld::gameLogic(float dt)
 }
 
 /*******************************************
-	Character
+Character
 ********************************************/
 
 void HelloWorld::initalizeCharacter() {
@@ -206,11 +224,11 @@ void HelloWorld::initalizeCharacter() {
 	//plist를 이용하는 편이 리소스를 줄이지만 유료프로그램밖에 없으므로
 	//일일이 이미지를 애니메이션에 추가한다. ㅜ.ㅜ
 	auto animation = Animation::create();
-	animation->setDelayPerUnit(0.1f);	
+	animation->setDelayPerUnit(0.1f);
 }
 
 /*******************************************
-	Enemy
+Enemy
 ********************************************/
 
 void HelloWorld::initializeEnemy(float dt)
@@ -251,7 +269,7 @@ void HelloWorld::initializeEnemy(float dt)
 		else if (pos == 3) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.6));
 		else if (pos == 4) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.8));
 	}
-	
+
 	//적 화면에 뿌림
 	this->addChild(enemy);
 
@@ -261,15 +279,15 @@ void HelloWorld::initializeEnemy(float dt)
 }
 
 /*******************************************
-	Touch Event
+Touch Event
 ********************************************/
 bool HelloWorld::onTouch(cocos2d::Touch* touch, cocos2d::Event* event) {
-	
+
 	return false;
 }
 
 void HelloWorld::onTouchMoved(Touch* touch, Event* event) {
-	
+
 }
 
 void HelloWorld::onTouchEnded(Touch* touch, Event* event) {

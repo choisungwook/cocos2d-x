@@ -41,7 +41,11 @@ void MenuScene::changeScene(Object *pSender)
 
 void MenuScene::itemCallBack(Object *pSender)
 {
-	//test
+	int MaxTime = UserDefault::getInstance()->getDoubleForKey("data");
+	char str[100];
+	sprintf(str, "%d", MaxTime);
+	MessageBox(str, "Alert");
+
 }
 
 
