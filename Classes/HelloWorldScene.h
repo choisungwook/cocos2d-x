@@ -2,50 +2,40 @@
 #define __HELLOWORLD_SCENE_H__
 
 #include "cocos2d.h"
-#include "Sprite_Character.h"
-#include "Sprite_enemy.h"
+#include "Box2D/Box2D.h"
+#include "ball.h"
+
+#include "GLES-Render.h"
+USING_NS_CC;
+
 
 class HelloWorld : public cocos2d::LayerColor
 {
 public:
+	// implement the "static create()" method manually
+	CREATE_FUNC(HelloWorld);
+	CC_SYNTHESIZE(b2World *, _world, World);
+
     static cocos2d::Scene* createScene();
-    virtual bool init();    
-    // implement the "static create()" method manually
-    CREATE_FUNC(HelloWorld);
 
-	//게임 흐름에 관련된 함수	
-	void startGame(float dt);
-	void gameLogic(float dt);
-	bool isPlaying;
+    virtual bool init();
+	
+	void initPhysics();
+	void update(float dt);
+	void addWall(float w, float h, float px, float py);
 
-	//터치 이벤트 관련 함수
-	virtual bool onTouch(cocos2d::Touch* touch, cocos2d::Event* event);
-	virtual void onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event);
-	virtual void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);
-
-	//캐릭터 관련 함수
-	void initalizeCharacter();
-
-	//test Option Layer
-	cocos2d::Layer* OptionLayer = NULL;
-	cocos2d::Sprite* rect;
-	bool isPause = false;
-	void initalizeMenu();
-	void ButtonCallback(Ref* pSender);
-	void OptionCallback(Ref* pSender);
-	void CloseGameCallback(Ref* pSender);
-	void ReturnGameCallback(Ref* pSender);
-
-	//적(총알역할) 관련 함수 & 변수
-	void initializeEnemy(float dt);
-	cocos2d::Vec2 origin = cocos2d::Director::getInstance()->getVisibleOrigin();
+	virtual void draw(Renderer *renderer, const Mat4 &transform,
+		uint32_t flags) override;
 
 private:
-	MyCharacter* sprite_Character; //게임캐릭터
-	cocos2d::Vec2 pos_TouchBefore;
-	cocos2d::Vec2 pos_SpriteBefore;
-	cocos2d::Vector<Enemy*> vector_enemies;
+
+	Size _screenSize;
+	Vector<Ball *> _balls;
+
+	GLESDebugDraw * _debugDraw;
+	Mat4 _modelViewMV;
+	void onDraw();
+	CustomCommand _customCommand;
 };
 
 #endif // __HELLOWORLD_SCENE_H__
-

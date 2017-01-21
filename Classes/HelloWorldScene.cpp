@@ -1,8 +1,8 @@
 #include "HelloWorldScene.h"
 #include "SimpleAudioEngine.h"
-#include "VisibleRect.h"
-
+#include "character.h"
 USING_NS_CC;
+
 
 Scene* HelloWorld::createScene()
 {
@@ -24,246 +24,199 @@ bool HelloWorld::init()
 {
     //////////////////////////////
     // 1. super init first
-    if ( !LayerColor::initWithColor(Color4B(255, 255, 255, 255))) {
+    if ( !LayerColor::initWithColor(Color4B(255,255,255,255)))
+    {
         return false;
-    }   
+    }
 
-	//∏ﬁ¥∫ ª˝º∫
-	initalizeMenu();
-	initalizeCharacter();
-
-	// ??Ï¥àÍ∏∞??Î∞??ùÏÑ± ( 1Ï¥?)
-	this->schedule(schedule_selector(HelloWorld::initializeEnemy), 1.0f);
-	// 1Ï¥àÌõÑ Í≤åÏûÑ ?úÏûë
-	this->scheduleOnce(schedule_selector(HelloWorld::startGame), 1.0f);
-
-	return true;
-}
-void HelloWorld::initalizeMenu()
-{
-	//test option button
-	auto sprOption = MenuItemImage::create("settings.png", "settings.png", CC_CALLBACK_1(HelloWorld::OptionCallback, this));
-	sprOption->setScale(0.5f);
-
-	auto menuOption = Menu::create(sprOption, NULL);
-	menuOption->setPosition(ccp((VisibleRect::getVisibleRect().size.width*0.9), (VisibleRect::getVisibleRect().size.height*0.9)));
-	this->addChild(menuOption, 1);
-
-	log("%f %f", (VisibleRect::getVisibleRect().size.width*0.9, VisibleRect::getVisibleRect().size.height*0.9));
-
-	//item button
-	auto sprButton = MenuItemImage::create("power.png", "power1.png", CC_CALLBACK_1(HelloWorld::ButtonCallback, this));
-	sprButton->setScale(0.7f);
-
-	auto menu = Menu::create(sprButton, NULL);
-	menu->setPosition(ccp(VisibleRect::getVisibleRect().size.width*0.9, VisibleRect::getVisibleRect().size.height*0.2));
-	this->addChild(menu, 1);
-
-	/*
-	auto sprtest = Sprite::create("1.jpg");
-	sprtest->setPosition(menuOption->getPosition());
-	this->addChild(sprtest);
-	*/
+	_screenSize = Director::getInstance()->getWinSize();
+	initPhysics();
+	scheduleUpdate();
+    return true;
 }
 
-/*******************************************
-Game menu
-********************************************/
-
-void HelloWorld::OptionCallback(Ref* pSender)
+void HelloWorld::initPhysics()
 {
-	log("Option open");
+	b2Vec2 gravity;
+	gravity.Set(0.0f, 0.0f);
+	_world = new b2World(gravity);
 
-	if (isPause == false) {
-		isPause = true;
-		Director::getInstance()->getScheduler()->pauseTarget(this); //Ω∫ƒ…¡Ÿ∑Ø ¡§¡ˆ
+	_world->SetAllowSleeping(true);
+	_world->SetContinuousPhysics(true);
+	/*_collisionListener = new CollisionListener();
+	_world->SetContactListener(_collisionListener);*/
+		
+	_debugDraw = new (std::nothrow) GLESDebugDraw(PTM_RATIO);
+	_world->SetDebugDraw(_debugDraw);
+	uint32 flags = 0;
+	flags += b2Draw::e_shapeBit;
+	// flags += b2Draw::e_jointBit;
+	// flags += b2Draw::e_aabbBit;
+	// flags += b2Draw::e_pairBit;
+	// flags += b2Draw::e_centerOfMassBit;
+	_debugDraw->SetFlags(flags);
 
-		if (OptionLayer == NULL) {
-			OptionLayer = Layer::create();
-			this->addChild(OptionLayer, 2);
+
+
+	//add balls
+	float startX = _screenSize.width * 0.07;
+	float startY = _screenSize.height * 0.92f;
+
+	
+	_balls = Vector<Ball *>(15);
+
+	int col = 5;
+	int colCnt = 0;
+	startX = (_screenSize.width - 8 * BALL_RADIUS) * 0.5f;
+	startY = _screenSize.height * 0.82f;
+	float newX;
+	float newY;
+	int color;
+	for (int i = 0; i < 10; i++) {
+		if (i == 10) {
+			color = kColorBlack;
 		}
-
-		sprite_Character->stopAllActions();
-
-		Rect rectOption = OptionLayer->getBoundingBox();
-
-		rect = Sprite::create("option.jpg");
-		rect->setOpacity(150);
-		rect->setPosition(Point(rectOption.getMaxX() / 2, rectOption.getMaxY() / 2));
-		OptionLayer->addChild(rect);
-
-		auto returnButton = MenuItemImage::create("returngame.jpg", "returngame.jpg", CC_CALLBACK_1(HelloWorld::ReturnGameCallback, this));
-
-		auto CloseGameButton = MenuItemImage::create("endgame.jpg", "endgame.jpg", CC_CALLBACK_1(HelloWorld::CloseGameCallback, this));
-		auto menu = Menu::create(returnButton, CloseGameButton, NULL);
-		menu->setOpacity(180);
-		menu->alignItemsVertically();
-		menu->setPosition(ccp(rectOption.getMaxX() / 2, rectOption.getMaxY() / 2));
-		OptionLayer->addChild(menu);
-	}
-	else {
-		isPause = false;
-		Director::getInstance()->getScheduler()->resumeTarget(this);
-		OptionLayer->removeAllChildren();
-		sprite_Character->resume();
-	}
-}
-
-void HelloWorld::ReturnGameCallback(Ref* pSender)
-{
-	isPause = false;
-	Director::getInstance()->getScheduler()->resumeTarget(this);
-	OptionLayer->removeAllChildren();
-	sprite_Character->resume();
-}
-
-void HelloWorld::CloseGameCallback(Ref* pSender)
-{
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.", "Alert");
-	return;
-#endif
-	Director::getInstance()->end();
-
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-	exit(0);
-#endif
-}
-
-void HelloWorld::ButtonCallback(Ref* pSender)
-{
-	log("callback");
-	//item button call back
-}
-/*******************************************
-	Game Update
-********************************************/
-
-void HelloWorld::startGame(float dt)
-{
-	isPlaying = true;
-
-	this->schedule(schedule_selector(HelloWorld::gameLogic), 2.0f / 60.0f);
-}
-
-void HelloWorld::gameLogic(float dt)
-{
-	//???¥Îèô 
-	//Î≤ΩÎ©¥ Ï∂©ÎèåÍ≤Ä??
-	for (auto& enemy : vector_enemies) {
-		enemy->move();		
-	}
-
-	//Ï∫êÎ¶≠??Ï∂©ÎèåÍ≤Ä??
-	for (auto iter_enemy = vector_enemies.begin(); iter_enemy != vector_enemies.end();)
-	{		
-		if (sprite_Character->collisionWithEnemy(*iter_enemy)) {
-			removeChild(*iter_enemy); //auto relase?çÏÑ± ?åÎ¨∏???òÎèô?ºÎ°ú releaseÎ•??òÎ©¥ ?àÎê† Í≤ÉÍ∞ô??
-			iter_enemy = vector_enemies.erase(iter_enemy);
+		else if (i % 2 == 0) {
+			color = kColorYellow;
 		}
 		else {
-			++iter_enemy;
+			color = kColorRed;
+		}
+		if (colCnt < col) {
+			newX = startX + colCnt * 2 * BALL_RADIUS;
+			colCnt++;
+		}
+		else {
+			startX += BALL_RADIUS;
+			startY -= 2 * BALL_RADIUS;
+			newX = startX;
+			col--;
+			colCnt = 1;
+		}	
+		newY = startY;
+		auto ball = Ball::create(this, Vec2(newX, newY), color);
+		//_gameBatchNode->addChild(ball, kMiddleground);
+		_balls.pushBack(ball);
+		addChild(ball);
+	}
+	auto character = Character::create(this, Vec2(_screenSize.width/2, _screenSize.height/2), color);
+	addChild(character);
+
+	//create table sides
+	b2BodyDef tableBodyDef;
+	tableBodyDef.position.Set(0, 0);
+	auto tableBody = _world->CreateBody(&tableBodyDef);
+
+	addWall(_screenSize.width, 10, (_screenSize.width / 2), 0); //CEIL
+	addWall(_screenSize.width, 10, (_screenSize.width / 2), _screenSize.height); //CEIL
+	addWall(10, _screenSize.height, 0, (_screenSize.height / 2)); //LEFT
+	addWall(10, _screenSize.height, _screenSize.width, (_screenSize.height / 2)); //RIGHT
+
+}
+
+void HelloWorld::update(float dt)
+{
+	_world->Step(dt, 10, 10);
+
+	for (auto ball : _balls) {
+
+		ball->update(dt);
+	}
+	// π∞∏Æ¿˚ ¿ßƒ°∏¶ ¿ÃøÎ«ÿº≠ Ω∫«¡∂Û¿Ã∆Æ¿« ¿ßƒ°∏¶ ∞ªΩ≈«—¥Ÿ.
+
+	// velocityIterations : πŸµµÈ¿ª ¡§ªÛ¿˚¿∏∑Œ ¿ÃµøΩ√≈∞±‚ ¿ß«ÿº≠ « ø‰«— √ÊµπµÈ¿ª π›∫π¿˚¿∏∑Œ ∞ËªÍ
+	// positionIterations : ¡∂¿Œ∆Æ ∫–∏ÆøÕ, ∞„ƒß«ˆªÛ¿ª ¡Ÿ¿Ã±‚ ¿ß«ÿº≠ πŸµ¿« ¿ßƒ°∏¶ π›∫π¿˚¿∏∑Œ ¿˚øÎ
+	// ∞™¿Ã ≈¨ºˆ∑œ ¡§»Æ«— ø¨ªÍ¿Ã ∞°¥…«œ¡ˆ∏∏ º∫¥…¿Ã ∂≥æÓ¡¯¥Ÿ.
+
+	// «¡∑Œ¡ß∆Æ ª˝º∫Ω√ ±‚∫ª∞™
+	//    int velocityIterations = 8;
+	//    int positionIterations = 1;
+
+	// ∏≈¥∫æÛªÛ¿« ±«¿Â∞™
+	int velocityIterations = 8;
+	int positionIterations = 3;
+
+	// Step : π∞∏Æ ºº∞Ë∏¶ Ω√πƒ∑π¿Ãº««—¥Ÿ.
+	_world->Step(dt, velocityIterations, positionIterations);
+
+	// ∏µÁ π∞∏Æ ∞¥√ºµÈ¿∫ ∏µ≈©µÂ ∏ÆΩ∫∆Æø° ¿˙¿Âµ«æÓ ¬¸¡∂«ÿ ∫º ºˆ ¿÷µµ∑œ ±∏«ˆµ«æÓ ¿÷¥Ÿ.
+	// ∏∏µÈæÓ¡¯ ∞¥√º ∏∏≈≠ ∑Á«¡∏¶ µπ∏Æ∏Èº≠ πŸµø° ∫Ÿ¿Œ Ω∫«¡∂Û¿Ã∆Æ∏¶ ø©±‚º≠ ¡¶æÓ«—¥Ÿ.
+	for (b2Body *b = _world->GetBodyList(); b; b = b->GetNext())
+	{
+		if (b->GetUserData() != nullptr) {
+			Sprite* spriteData = (Sprite *)b->GetUserData();
+			// if ball is going too fast, turn on damping
+			if (spriteData->getTag() == 1) {
+				static int maxSpeed = 10;
+
+				b2Vec2 velocity = b->GetLinearVelocity();
+				float32 speed = velocity.Length();
+
+				if (speed > maxSpeed) {
+					b->SetLinearDamping(0.5);
+				}
+				else if (speed < maxSpeed) {
+					b->SetLinearDamping(0.0);
+				}
+				continue;
+			}
+
+			spriteData->setPosition(Point(b->GetPosition().x * PTM_RATIO,
+				b->GetPosition().y * PTM_RATIO));
+			//spriteData->setRotation(-1 * CC_RADIANS_TO_DEGREES(b->GetAngle()));
 		}
 	}
 }
 
-/*******************************************
-	Character
-********************************************/
-
-void HelloWorld::initalizeCharacter() {
-	//Ï∫êÎ¶≠??sprite ?ùÏÑ±
-	sprite_Character = MyCharacter::create("character/1.png");
-	sprite_Character->setPosition(ccp((VisibleRect::getVisibleRect().size.width / 2), (VisibleRect::getVisibleRect().size.height / 2)));
-	this->addChild(sprite_Character);
-	
-	//Ï∂©ÎèåÎ∞ïÏä§ Í∑∏Î¶¨Í∏?
-	auto draw = DrawNode::create();
-	auto checkBox = sprite_Character->collisionRegion();
-	draw->drawRect(checkBox.origin, checkBox.origin + checkBox.size, Color4F(1, 0, 0, 1));
-	draw->setPosition(ccp(-VisibleRect::getVisibleRect().size.width/2 + sprite_Character->getContentSize().width/2,
-		-VisibleRect::getVisibleRect().size.height/2 + sprite_Character->getContentSize().height/2));
-	sprite_Character->addChild(draw);
-	
-	//?†ÎãàÎ©îÏù¥??
-	//plistÎ•??¥Ïö©?òÎäî ?∏Ïù¥ Î¶¨ÏÜå?§Î? Ï§ÑÏù¥ÏßÄÎß??†Î£å?ÑÎ°úÍ∑∏Îû®Î∞ñÏóê ?ÜÏúºÎØÄÎ°?
-	//?ºÏùº???¥Î?ÏßÄÎ•??†ÎãàÎ©îÏù¥?òÏóê Ï∂îÍ??úÎã§. ????
-	auto animation = Animation::create();
-	animation->setDelayPerUnit(0.1f);
-
-	for (int i = 1; i <= 5; i++) {
-		char imgpath[100] = { 0, };
-		sprintf(imgpath, "character/%d.png", i);
-		animation->addSpriteFrameWithFile(imgpath);
-	}
-
-	auto animate = Animate::create(animation);
-	sprite_Character->runAction(RepeatForever::create(animate));
-}
-
-/*******************************************
-	Enemy
-********************************************/
-
-void HelloWorld::initializeEnemy(float dt)
+void HelloWorld::addWall(float w, float h, float px, float py)
 {
-	//???¥Î?ÏßÄ Í∞Ä?∏Ïò§Í∏?
-	Enemy* enemy = Enemy::create("enemy.png");
+	b2PolygonShape floorShape;
 
-	//???ùÏÑ±?òÎäî Î∞©Ìñ• Í≤∞Ï†ï
-	int sides = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
-	int gap = -3;
+	floorShape.SetAsBox(w / PTM_RATIO, h / PTM_RATIO);
+	b2FixtureDef floorFixture;
+	floorFixture.density = 0;
+	floorFixture.friction = 10;
+	floorFixture.restitution = 0.5;
+	floorFixture.shape = &floorShape;
+	b2BodyDef floorBodyDef;
 
-	if (sides == 1) { //??
-		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
-		if (pos == 1) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width *0.25, origin.y + VisibleRect::getVisibleRect().size.width + gap));
-		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.5, origin.y + VisibleRect::getVisibleRect().size.width + gap));
-		else if (pos == 3)    enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.75, origin.y + VisibleRect::getVisibleRect().size.width + gap));
-	}
-	else if (sides == 2) // ??
-	{
-		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
-		if (pos == 1) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.25, origin.y - gap));
-		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.5, origin.y - gap));
-		else if (pos == 3)   enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.75, origin.y - gap));
-	}
-	else if (sides == 3) // Ï¢?
-	{
-		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
-		if (pos == 1) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.2));
-		else if (pos == 2) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.4));
-		else if (pos == 3) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.6));
-		else if (pos == 4) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.8));
-	}
-	else if (sides == 4) // ??
-	{
-		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
-		if (pos == 1) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.2));
-		else if (pos == 2) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.4));
-		else if (pos == 3) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.6));
-		else if (pos == 4) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.8));
-	}
-	
-	//???îÎ©¥??ÎøåÎ¶º
-	this->addChild(enemy);
+	floorBodyDef.position.Set(px / PTM_RATIO, py / PTM_RATIO);
+	b2Body *floorBody = _world->CreateBody(&floorBodyDef);
 
-	//??Î≤°ÌÑ∞???±Î°ù, ?ÅÏä§?ÑÎùº?¥Ìä∏, ?ÑÎ†à?ÑÎãπ ?¥Îèô?òÎäî x,yÍ∞?
-	enemy->setvelocity(Vec2(2, 2));
-	vector_enemies.pushBack(enemy);
+	floorBody->CreateFixture(&floorFixture);
 }
 
-/*******************************************
-	Touch Event
-********************************************/
-bool HelloWorld::onTouch(cocos2d::Touch* touch, cocos2d::Event* event) {
-	
-	return false;
+void HelloWorld::draw(Renderer * renderer, const Mat4 & transform, uint32_t flags)
+{
+	//
+	// IMPORTANT:
+	// This is only for debug purposes
+	// It is recommended to disable it
+	//
+	Layer::draw(renderer, transform, flags);
+	GL::enableVertexAttribs(cocos2d::GL::VERTEX_ATTRIB_FLAG_POSITION);
+	auto director = Director::getInstance();
+	CCASSERT(nullptr != director, "Director is null when setting matrix stack");
+		director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+	_modelViewMV = director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+	_customCommand.init(_globalZOrder);
+	_customCommand.func = CC_CALLBACK_0(HelloWorld::onDraw, this);
+	renderer->addCommand(&_customCommand);
+	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
-void HelloWorld::onTouchMoved(Touch* touch, Event* event) {
-	
+void HelloWorld::onDraw()
+{
+	auto director = Director::getInstance();
+	Mat4 oldMV;
+	oldMV = director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+	director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW,
+		_modelViewMV);
+	_world->DrawDebugData();
+	director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW,
+		oldMV);
 }
 
-void HelloWorld::onTouchEnded(Touch* touch, Event* event) {
 
-}
+
+
