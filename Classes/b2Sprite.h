@@ -2,7 +2,7 @@
 #define __MiniPool__b2Sprite__
 
 #define PTM_RATIO 32.0
-#define BALL_RADIUS 10.0
+#define BALL_RADIUS 20.0
 
 #include "cocos2d.h"
 #include "Box2D/Box2D.h"

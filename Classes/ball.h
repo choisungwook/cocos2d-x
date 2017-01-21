@@ -1,7 +1,5 @@
 #ifndef __BALL_H__
 #define __BALL_H__
-
-
 #include "b2Sprite.h"
 
 enum {
@@ -28,6 +26,10 @@ private:
 	Point _startPosition;
 
 	int _color;
+
+	//direction values
+	bool _y; //if it is true, the ball's direction is up
+	bool _x; //if it is true, the ball's direction is left
 
 };
 

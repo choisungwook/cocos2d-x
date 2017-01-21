@@ -1,6 +1,5 @@
-#include "HelloWorldScene.h"
+ï»¿#include "HelloWorldScene.h"
 #include "SimpleAudioEngine.h"
-#include "character.h"
 USING_NS_CC;
 
 
@@ -32,6 +31,22 @@ bool HelloWorld::init()
 	_screenSize = Director::getInstance()->getWinSize();
 	initPhysics();
 	scheduleUpdate();
+	schedule(schedule_selector(HelloWorld::initializeEnemy), 1.0f);
+	//schedule(schedule_selector(HelloWorld::logic), 0.1f);
+
+	//listen for touches
+	auto listener = EventListenerTouchOneByOne::create();
+	listener->setSwallowTouches(true);
+	listener->onTouchBegan = CC_CALLBACK_2(HelloWorld::onTouchBegan, this);
+	listener->onTouchMoved = CC_CALLBACK_2(HelloWorld::onTouchMoved, this);
+	listener->onTouchEnded = CC_CALLBACK_2(HelloWorld::onTouchEnded, this);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+
+	min_x = 0 + character->getContentSize().width / 2;
+	max_x = _screenSize.width - character->getContentSize().width / 2;
+	min_y = 0 + character->getContentSize().height / 2;
+	max_y = _screenSize.height - character->getContentSize().height / 2;
+	
     return true;
 }
 
@@ -46,60 +61,17 @@ void HelloWorld::initPhysics()
 	/*_collisionListener = new CollisionListener();
 	_world->SetContactListener(_collisionListener);*/
 		
-	_debugDraw = new (std::nothrow) GLESDebugDraw(PTM_RATIO);
-	_world->SetDebugDraw(_debugDraw);
-	uint32 flags = 0;
-	flags += b2Draw::e_shapeBit;
-	// flags += b2Draw::e_jointBit;
-	// flags += b2Draw::e_aabbBit;
-	// flags += b2Draw::e_pairBit;
-	// flags += b2Draw::e_centerOfMassBit;
-	_debugDraw->SetFlags(flags);
+	//_debugDraw = new (std::nothrow) GLESDebugDraw(PTM_RATIO);
+	//_world->SetDebugDraw(_debugDraw);
+	//uint32 flags = 0;
+	//flags += b2Draw::e_shapeBit;
+	//// flags += b2Draw::e_jointBit;
+	//// flags += b2Draw::e_aabbBit;
+	//// flags += b2Draw::e_pairBit;
+	//// flags += b2Draw::e_centerOfMassBit;
+	//_debugDraw->SetFlags(flags);
 
-
-
-	//add balls
-	float startX = _screenSize.width * 0.07;
-	float startY = _screenSize.height * 0.92f;
-
-	
-	_balls = Vector<Ball *>(15);
-
-	int col = 5;
-	int colCnt = 0;
-	startX = (_screenSize.width - 8 * BALL_RADIUS) * 0.5f;
-	startY = _screenSize.height * 0.82f;
-	float newX;
-	float newY;
-	int color;
-	for (int i = 0; i < 10; i++) {
-		if (i == 10) {
-			color = kColorBlack;
-		}
-		else if (i % 2 == 0) {
-			color = kColorYellow;
-		}
-		else {
-			color = kColorRed;
-		}
-		if (colCnt < col) {
-			newX = startX + colCnt * 2 * BALL_RADIUS;
-			colCnt++;
-		}
-		else {
-			startX += BALL_RADIUS;
-			startY -= 2 * BALL_RADIUS;
-			newX = startX;
-			col--;
-			colCnt = 1;
-		}	
-		newY = startY;
-		auto ball = Ball::create(this, Vec2(newX, newY), color);
-		//_gameBatchNode->addChild(ball, kMiddleground);
-		_balls.pushBack(ball);
-		addChild(ball);
-	}
-	auto character = Character::create(this, Vec2(_screenSize.width/2, _screenSize.height/2), color);
+	character = Character::create(this, Vec2(_screenSize.width/2, _screenSize.height/2), 0);
 	addChild(character);
 
 	//create table sides
@@ -107,40 +79,24 @@ void HelloWorld::initPhysics()
 	tableBodyDef.position.Set(0, 0);
 	auto tableBody = _world->CreateBody(&tableBodyDef);
 
-	addWall(_screenSize.width, 10, (_screenSize.width / 2), 0); //CEIL
-	addWall(_screenSize.width, 10, (_screenSize.width / 2), _screenSize.height); //CEIL
-	addWall(10, _screenSize.height, 0, (_screenSize.height / 2)); //LEFT
-	addWall(10, _screenSize.height, _screenSize.width, (_screenSize.height / 2)); //RIGHT
-
+	addWall(_screenSize.width, 0, (_screenSize.width / 2), 0); //CEIL
+	addWall(_screenSize.width, 0, (_screenSize.width / 2), _screenSize.height); //BOTTOM
+	addWall(0, _screenSize.height, 0, (_screenSize.height / 2)); //LEFT
+	addWall(0, _screenSize.height, _screenSize.width, (_screenSize.height / 2)); //RIGHT
 }
 
 void HelloWorld::update(float dt)
 {
-	_world->Step(dt, 10, 10);
+	//default value
+	int velocityIterations = 8;
+	int positionIterations = 1;
 
 	for (auto ball : _balls) {
-
 		ball->update(dt);
 	}
-	// ¹°¸®Àû À§Ä¡¸¦ ÀÌ¿ëÇØ¼­ ½ºÇÁ¶óÀÌÆ®ÀÇ À§Ä¡¸¦ °»½ÅÇÑ´Ù.
 
-	// velocityIterations : ¹ÙµðµéÀ» Á¤»óÀûÀ¸·Î ÀÌµ¿½ÃÅ°±â À§ÇØ¼­ ÇÊ¿äÇÑ Ãæµ¹µéÀ» ¹Ýº¹ÀûÀ¸·Î °è»ê
-	// positionIterations : Á¶ÀÎÆ® ºÐ¸®¿Í, °ãÄ§Çö»óÀ» ÁÙÀÌ±â À§ÇØ¼­ ¹ÙµðÀÇ À§Ä¡¸¦ ¹Ýº¹ÀûÀ¸·Î Àû¿ë
-	// °ªÀÌ Å¬¼ö·Ï Á¤È®ÇÑ ¿¬»êÀÌ °¡´ÉÇÏÁö¸¸ ¼º´ÉÀÌ ¶³¾îÁø´Ù.
-
-	// ÇÁ·ÎÁ§Æ® »ý¼º½Ã ±âº»°ª
-	//    int velocityIterations = 8;
-	//    int positionIterations = 1;
-
-	// ¸Å´º¾ó»óÀÇ ±ÇÀå°ª
-	int velocityIterations = 8;
-	int positionIterations = 3;
-
-	// Step : ¹°¸® ¼¼°è¸¦ ½Ã¹Ä·¹ÀÌ¼ÇÇÑ´Ù.
 	_world->Step(dt, velocityIterations, positionIterations);
 
-	// ¸ðµç ¹°¸® °´Ã¼µéÀº ¸µÅ©µå ¸®½ºÆ®¿¡ ÀúÀåµÇ¾î ÂüÁ¶ÇØ º¼ ¼ö ÀÖµµ·Ï ±¸ÇöµÇ¾î ÀÖ´Ù.
-	// ¸¸µé¾îÁø °´Ã¼ ¸¸Å­ ·çÇÁ¸¦ µ¹¸®¸é¼­ ¹Ùµð¿¡ ºÙÀÎ ½ºÇÁ¶óÀÌÆ®¸¦ ¿©±â¼­ Á¦¾îÇÑ´Ù.
 	for (b2Body *b = _world->GetBodyList(); b; b = b->GetNext())
 	{
 		if (b->GetUserData() != nullptr) {
@@ -168,13 +124,61 @@ void HelloWorld::update(float dt)
 	}
 }
 
+void HelloWorld::initializeEnemy(float dt)
+{
+	int sides = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
+	int gap = 15;
+	Vec2 vPos;
+
+	//ceil
+	if (sides == 1) { 
+		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
+		if (pos == 1) vPos.setPoint(origin.x + _screenSize.width *0.25, _screenSize.height - gap);
+		else if (pos == 2) vPos.setPoint(origin.x + _screenSize.width*0.5,  _screenSize.height - gap);
+		else if (pos == 3) vPos.setPoint(origin.x + _screenSize.width*0.75,  _screenSize.height - gap);
+	}
+	//bottom
+	else if (sides == 2) 
+	{
+		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
+		if (pos == 1) vPos.setPoint(_screenSize.width*0.25, gap);
+		else if (pos == 2) vPos.setPoint(_screenSize.width*0.5, gap);
+		else if (pos == 3) vPos.setPoint(_screenSize.width*0.75, gap);
+	}
+	//left
+	else if (sides == 3) 
+	{
+		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
+		if (pos == 1) vPos.setPoint(gap, + _screenSize.height*0.2);
+		else if (pos == 2) vPos.setPoint(gap, _screenSize.height*0.4);
+		else if (pos == 3) vPos.setPoint(gap, _screenSize.height*0.6);
+		else if (pos == 4) vPos.setPoint(gap, _screenSize.height*0.8);
+	}
+	//right
+	else if (sides == 4)
+	{
+		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
+		if (pos == 1) vPos.setPoint(_screenSize.width - gap, _screenSize.height*0.2);
+		else if (pos == 2) vPos.setPoint(_screenSize.width - gap, _screenSize.height*0.4);
+		else if (pos == 3) vPos.setPoint(_screenSize.width - gap, _screenSize.height*0.6);
+		else if (pos == 4) vPos.setPoint(_screenSize.width - gap, _screenSize.height*0.8);
+	}
+
+	auto ball = Ball::create(this, vPos, 0);
+	this->addChild(ball);
+	//enemy->setvelocity(Vec2(2, 2));
+	_balls.pushBack(ball);
+}
+
+
+
 void HelloWorld::addWall(float w, float h, float px, float py)
 {
 	b2PolygonShape floorShape;
 
 	floorShape.SetAsBox(w / PTM_RATIO, h / PTM_RATIO);
 	b2FixtureDef floorFixture;
-	floorFixture.density = 0;
+	floorFixture.density = 10;
 	floorFixture.friction = 10;
 	floorFixture.restitution = 0.5;
 	floorFixture.shape = &floorShape;
@@ -186,37 +190,65 @@ void HelloWorld::addWall(float w, float h, float px, float py)
 	floorBody->CreateFixture(&floorFixture);
 }
 
-void HelloWorld::draw(Renderer * renderer, const Mat4 & transform, uint32_t flags)
+bool HelloWorld::onTouchBegan(Touch * touch, Event * event)
 {
-	//
-	// IMPORTANT:
-	// This is only for debug purposes
-	// It is recommended to disable it
-	//
-	Layer::draw(renderer, transform, flags);
-	GL::enableVertexAttribs(cocos2d::GL::VERTEX_ATTRIB_FLAG_POSITION);
-	auto director = Director::getInstance();
-	CCASSERT(nullptr != director, "Director is null when setting matrix stack");
-		director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-	_modelViewMV = director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-	_customCommand.init(_globalZOrder);
-	_customCommand.func = CC_CALLBACK_0(HelloWorld::onDraw, this);
-	renderer->addCommand(&_customCommand);
-	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+	Point tap = touch->getLocation();
+
+	previousPos = tap;
+	previousSpritePos = character->getPosition();
+
+	return true;
 }
 
-void HelloWorld::onDraw()
+void HelloWorld::onTouchMoved(Touch * touch, Event * event)
 {
-	auto director = Director::getInstance();
-	Mat4 oldMV;
-	oldMV = director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-	director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW,
-		_modelViewMV);
-	_world->DrawDebugData();
-	director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW,
-		oldMV);
+	Point tap = touch->getLocation();
+	float diffx = tap.x - previousPos.x;
+	float diffy = tap.y - previousPos.y;
+
+	float x = previousSpritePos.x + diffx;
+	float y = previousSpritePos.y + diffy;
+
+	//ì°½í¬ê¸° ê²€ì‚¬
+	if (x > max_x) x = max_x;
+	if (x < min_x) x = min_x;
+	if (y > max_y) y = max_y;
+	if (y < min_y) y = min_y;
+
+	Point pos = Vec2(x,y);
+	character->getBody()->SetTransform(b2Vec2(pos.x / PTM_RATIO, pos.y / PTM_RATIO),character->getBody()->GetAngle());
 }
 
+void HelloWorld::onTouchEnded(Touch * touch, Event * event)
+{
+}
 
+void HelloWorld::logic(float dt)
+{
+	
+}
 
-
+//void HelloWorld::draw(Renderer * renderer, const Mat4 & transform, uint32_t flags)
+//{
+//	Layer::draw(renderer, transform, flags);
+//	GL::enableVertexAttribs(cocos2d::GL::VERTEX_ATTRIB_FLAG_POSITION);
+//	auto director = Director::getInstance();
+//	CCASSERT(nullptr != director, "Director is null when setting matrix stack");
+//		director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+//	_modelViewMV = director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+//	_customCommand.init(_globalZOrder);
+//	_customCommand.func = CC_CALLBACK_0(HelloWorld::onDraw, this);
+//	renderer->addCommand(&_customCommand);
+//	director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+//}
+//
+//void HelloWorld::onDraw()
+//{
+//	Mat4 oldMV;
+//
+//	auto director = Director::getInstance();	
+//	oldMV = director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+//	director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW,	_modelViewMV);
+//	_world->DrawDebugData();
+//	director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW,	oldMV);
+//}
