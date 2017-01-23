@@ -1,5 +1,6 @@
 #include "LogoScene.h"
-#include "HelloWorldScene.h"
+#include "MenuScene.h"
+#include "VisibleRect.h"
 USING_NS_CC;
 
 Scene* Logo::createScene()
@@ -36,9 +37,9 @@ bool Logo::init()
 
 void Logo::changeScene(Object *pSender)
 {
-	auto logo_change = HelloWorld::createScene();
+	auto logo_change = MenuScene::createScene();
 
-	TransitionScene * pTran = TransitionFade::create(5.0f, logo_change);
+	TransitionScene * pTran = TransitionFade::create(3.0f, logo_change);
 
 	Director::getInstance()->replaceScene(pTran);
 }
