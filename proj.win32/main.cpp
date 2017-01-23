@@ -1,7 +1,7 @@
 #include "main.h"
 #include "AppDelegate.h"
 #include "cocos2d.h"
-
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 USING_NS_CC;
 
 int WINAPI _tWinMain(HINSTANCE hInstance,
