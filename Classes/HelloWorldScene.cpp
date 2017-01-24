@@ -35,17 +35,17 @@ bool HelloWorld::init()
 	LoadData();
 	//¸Þ´º »ý¼º
 	initalizeMenu();
-	//Ä³¸¯ÅÍ ÃÊ±âÈ­ ¹× »ý¼º 
 	initalizeCharacter();
-	// Àû ÃÊ±âÈ­ ¹× »ý¼º ( 1ÃÊ )
+
+	// ??ì´ˆê¸°??ë°??ì„± ( 1ì´?)
 	this->schedule(schedule_selector(HelloWorld::initializeEnemy), 1.0f);
-	// 1ÃÊÈÄ °ÔÀÓ ½ÃÀÛ
+	// 1ì´ˆí›„ ê²Œìž„ ?œìž‘
 	this->scheduleOnce(schedule_selector(HelloWorld::startGame), 1.0f);
 	// time counting 0.1s
 	initTimer();
 	this->schedule(schedule_selector(HelloWorld::UpdateTimer), 0.1f);
 
-    return true;
+	return true;
 }
 
 void HelloWorld::initBackground()
@@ -244,13 +244,23 @@ void HelloWorld::startGame(float dt)
 
 void HelloWorld::gameLogic(float dt)
 {
-	//°ø ¿òÁ÷ÀÓ 
-	//º®¸é Ãæµ¹°Ë»ç
+	//???´ë™ 
+	//ë²½ë©´ ì¶©ëŒê²€??
 	for (auto& enemy : vector_enemies) {
-		enemy->move();
+		enemy->move();		
 	}
 
-	//Ä³¸¯ÅÍ Ãæµ¹°Ë»ç Ãß°¡ ¿¹Á¤
+	//ìºë¦­??ì¶©ëŒê²€??
+	for (auto iter_enemy = vector_enemies.begin(); iter_enemy != vector_enemies.end();)
+	{		
+		if (sprite_Character->collisionWithEnemy(*iter_enemy)) {
+			removeChild(*iter_enemy); //auto relase?ì„± ?Œë¬¸???˜ë™?¼ë¡œ releaseë¥??˜ë©´ ?ˆë  ê²ƒê°™??
+			iter_enemy = vector_enemies.erase(iter_enemy);
+		}
+		else {
+			++iter_enemy;
+		}
+	}
 }
 
 /*******************************************
@@ -258,16 +268,33 @@ void HelloWorld::gameLogic(float dt)
 ********************************************/
 
 void HelloWorld::initalizeCharacter() {
-	//Ä³¸¯ÅÍ sprite »ý¼º
+	//ìºë¦­??sprite ?ì„±
 	sprite_Character = MyCharacter::create("character/1.png");
-	sprite_Character->setPosition(ccp((VisibleRect::getVisibleRect().size.width / 2), (VisibleRect::getVisibleRect().size.width / 2)));
+	sprite_Character->setPosition(ccp((VisibleRect::getVisibleRect().size.width / 2), (VisibleRect::getVisibleRect().size.height / 2)));
 	this->addChild(sprite_Character);
-
-	//¾Ö´Ï¸ÞÀÌ¼Ç
-	//plist¸¦ ÀÌ¿ëÇÏ´Â ÆíÀÌ ¸®¼Ò½º¸¦ ÁÙÀÌÁö¸¸ À¯·áÇÁ·Î±×·¥¹Û¿¡ ¾øÀ¸¹Ç·Î
-	//ÀÏÀÏÀÌ ÀÌ¹ÌÁö¸¦ ¾Ö´Ï¸ÞÀÌ¼Ç¿¡ Ãß°¡ÇÑ´Ù. ¤Ì.¤Ì
+	
+	//ì¶©ëŒë°•ìŠ¤ ê·¸ë¦¬ê¸?
+	auto draw = DrawNode::create();
+	auto checkBox = sprite_Character->collisionRegion();
+	draw->drawRect(checkBox.origin, checkBox.origin + checkBox.size, Color4F(1, 0, 0, 1));
+	draw->setPosition(ccp(-VisibleRect::getVisibleRect().size.width/2 + sprite_Character->getContentSize().width/2,
+		-VisibleRect::getVisibleRect().size.height/2 + sprite_Character->getContentSize().height/2));
+	sprite_Character->addChild(draw);
+	
+	//? ë‹ˆë©”ì´??
+	//plistë¥??´ìš©?˜ëŠ” ?¸ì´ ë¦¬ì†Œ?¤ë? ì¤„ì´ì§€ë§?? ë£Œ?„ë¡œê·¸ëž¨ë°–ì— ?†ìœ¼ë¯€ë¡?
+	//?¼ì¼???´ë?ì§€ë¥?? ë‹ˆë©”ì´?˜ì— ì¶”ê??œë‹¤. ????
 	auto animation = Animation::create();
-	animation->setDelayPerUnit(0.1f);	
+	animation->setDelayPerUnit(0.1f);
+
+	for (int i = 1; i <= 5; i++) {
+		char imgpath[100] = { 0, };
+		sprintf(imgpath, "character/%d.png", i);
+		animation->addSpriteFrameWithFile(imgpath);
+	}
+
+	auto animate = Animate::create(animation);
+	sprite_Character->runAction(RepeatForever::create(animate));
 }
 
 /*******************************************
@@ -276,27 +303,27 @@ void HelloWorld::initalizeCharacter() {
 
 void HelloWorld::initializeEnemy(float dt)
 {
-	//Àû ÀÌ¹ÌÁö °¡Á®¿À±â
+	//???´ë?ì§€ ê°€?¸ì˜¤ê¸?
 	Enemy* enemy = Enemy::create("enemy.png");
 
-	//Àû »ý¼ºÇÏ´Â ¹æÇâ °áÁ¤
+	//???ì„±?˜ëŠ” ë°©í–¥ ê²°ì •
 	int sides = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
 	int gap = -3;
 
-	if (sides == 1) { //»ó
+	if (sides == 1) { //??
 		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
 		if (pos == 1) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width *0.25, origin.y + VisibleRect::getVisibleRect().size.width + gap));
 		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.5, origin.y + VisibleRect::getVisibleRect().size.width + gap));
 		else if (pos == 3)    enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.75, origin.y + VisibleRect::getVisibleRect().size.width + gap));
 	}
-	else if (sides == 2) // ÇÏ
+	else if (sides == 2) // ??
 	{
 		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
 		if (pos == 1) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.25, origin.y - gap));
 		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.5, origin.y - gap));
 		else if (pos == 3)   enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.75, origin.y - gap));
 	}
-	else if (sides == 3) // ÁÂ
+	else if (sides == 3) // ì¢?
 	{
 		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
 		if (pos == 1) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.2));
@@ -304,7 +331,7 @@ void HelloWorld::initializeEnemy(float dt)
 		else if (pos == 3) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.6));
 		else if (pos == 4) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.8));
 	}
-	else if (sides == 4) // ¿ì
+	else if (sides == 4) // ??
 	{
 		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
 		if (pos == 1) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.2));
@@ -313,10 +340,10 @@ void HelloWorld::initializeEnemy(float dt)
 		else if (pos == 4) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.8));
 	}
 	
-	//Àû È­¸é¿¡ »Ñ¸²
+	//???”ë©´??ë¿Œë¦¼
 	this->addChild(enemy);
 
-	//Àû º¤ÅÍ¿¡ µî·Ï, Àû½ºÇÁ¶óÀÌÆ®, ÇÁ·¹ÀÓ´ç ÀÌµ¿ÇÏ´Â x,y°ª
+	//??ë²¡í„°???±ë¡, ?ìŠ¤?„ë¼?´íŠ¸, ?„ë ˆ?„ë‹¹ ?´ë™?˜ëŠ” x,yê°?
 	enemy->setvelocity(Vec2(2, 2));
 	vector_enemies.pushBack(enemy);
 }

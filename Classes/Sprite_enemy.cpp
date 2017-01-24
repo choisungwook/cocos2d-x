@@ -23,11 +23,14 @@ Enemy * Enemy::create(const std::string & filename)
 	return nullptr;
 }
 
-//공 움직임
+//적 움직임
 void Enemy::move()
 {	
 	this->setPosition(getPosition() + velocity);
 
+	/***
+		벽충돌 검사
+	***/
 	//x축 검사
 	if (getPosition().x > VisibleRect::right().x - radius())
 	{
@@ -52,6 +55,7 @@ void Enemy::move()
 	}
 }
 
+//반지름 계산
 float Enemy::radius()
 {
 	return getTexture()->getContentSize().width / 2;	

@@ -2,6 +2,8 @@
 #define __SPRITE_CHARACTER__
 
 #include "cocos2d.h"
+#include "Sprite_enemy.h"
+USING_NS_CC;
 
 //캐릭터 상태를 저장
 typedef enum tagCharacterState {
@@ -18,6 +20,12 @@ public:
 	bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
 	void onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event);
 	void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);		
+
+	//Rect
+	Rect collisionRegion();
+
+	//적들과 충돌체크
+	bool collisionWithEnemy(Enemy* enemy);
 
 	//Life cycles
 	virtual void onEnter() override;
