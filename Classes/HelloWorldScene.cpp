@@ -31,7 +31,7 @@ bool HelloWorld::init()
 	}
 
 	//create the background
-	background = Sprite::create("background.png");	
+	background = Sprite::create("background2.png");	
 	background->setPosition(VisibleRect::getVisibleRect().size.width/2, VisibleRect::getVisibleRect().size.height/2);
 	addChild(background);
 
