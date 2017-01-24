@@ -1,6 +1,5 @@
 #include "MenuScene.h"
 #include "HelloWorldScene.h"
-#include "VisibleRect.h"
 USING_NS_CC;
 
 Scene* MenuScene::createScene()
@@ -18,14 +17,19 @@ bool MenuScene::init()
 		return false;
 	}
 
-	auto returnButton = MenuItemImage::create("startgame.jpg", "startgame.jpg", CC_CALLBACK_1(MenuScene::changeScene, this));
-	auto itemButton = MenuItemImage::create("itembutton.jpg", "itembutton.jpg", CC_CALLBACK_1(MenuScene::itemCallBack, this));
-	auto CloseGameButton = MenuItemImage::create("endgame.jpg", "endgame.jpg", CC_CALLBACK_1(MenuScene::CloseGameCallback, this));
-	auto menu = Menu::create(returnButton, itemButton, CloseGameButton, NULL);
-	menu->setOpacity(180);
-	menu->alignItemsVertically();
-	menu->setPosition(ccp(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2));
-	this->addChild(menu);
+	Size visibleSize = Director::getInstance()->getVisibleSize();
+	Point origin = Director::getInstance()->getVisibleOrigin();
+
+	/////////////////////////////
+
+	auto logo = Sprite::create("mushroom.png");
+	logo->setScale(0.7f);
+	logo->setAnchorPoint(Point(0.5, 0.5));
+	logo->setPosition(Point(Director::getInstance()->getWinSize().width / 2, Director::getInstance()->getWinSize().height / 2));
+	this->addChild(logo);
+
+	auto scene = CallFuncN::create(CC_CALLBACK_1(MenuScene::changeScene, this));
+	this->runAction(scene);
 
 	return true;
 }
@@ -37,27 +41,4 @@ void MenuScene::changeScene(Object *pSender)
 	TransitionScene * pTran = TransitionFade::create(2.0f, playScene_change);
 
 	Director::getInstance()->replaceScene(pTran);
-}
-
-void MenuScene::itemCallBack(Object *pSender)
-{
-	int MaxTime = UserDefault::getInstance()->getDoubleForKey("data");
-	char str[100];
-	sprintf(str, "%d", MaxTime);
-	MessageBox(str, "Alert");
-
-}
-
-
-void MenuScene::CloseGameCallback(Ref* pSender)
-{
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.", "Alert");
-	return;
-#endif
-	Director::getInstance()->end();
-
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-	exit(0);
-#endif
 }

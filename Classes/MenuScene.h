@@ -1,3 +1,4 @@
+
 #pragma once
 #ifndef __Menu_SCENE_H__
 #define __Menu_SCENE_H__
@@ -15,8 +16,6 @@ public:
 	virtual bool init();
 
 	void changeScene(Object *pSender);
-	void itemCallBack(Object *pSender);
-	void CloseGameCallback(Ref* pSender);
 
 	CREATE_FUNC(MenuScene);
 };
