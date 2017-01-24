@@ -13,8 +13,10 @@ Enemy::~Enemy()
 Enemy * Enemy::create(const std::string & filename)
 {
 	Enemy *sprite = new (std::nothrow) Enemy();
+
 	//경로가 존재하면 자동으로 동적 메모리 제거 기능 추가하고 sprite를 리턴
 	if (sprite && sprite->initWithFile(filename)) {
+		sprite->set_radius(sprite->getContentSize().width / 2);
 		sprite->autorelease();
 		return sprite;
 	}
@@ -32,38 +34,32 @@ void Enemy::move()
 		벽충돌 검사
 	***/
 	//x축 검사
-	if (getPosition().x > VisibleRect::right().x - radius())
+	if (getPosition().x > VisibleRect::right().x - radius)
 	{
-		setPosition(VisibleRect::right().x - radius(), getPosition().y);
+		setPosition(VisibleRect::right().x - radius, getPosition().y);
 		velocity.x *= -1;
 	}
-	else if (getPosition().x < VisibleRect::left().x + radius())
+	else if (getPosition().x < VisibleRect::left().x + radius)
 	{
-		setPosition(VisibleRect::left().x + radius(), getPosition().y);
+		setPosition(VisibleRect::left().x + radius, getPosition().y);
 		velocity.x *= -1;
 	}
 	//y축 검사
-	if (getPosition().y > VisibleRect::top().y - radius())
+	if (getPosition().y > VisibleRect::top().y - radius)
 	{
-		setPosition(getPosition().x, VisibleRect::top().y - radius());
+		setPosition(getPosition().x, VisibleRect::top().y - radius);
 		velocity.y *= -1;
 	}
-	else if (getPosition().y < VisibleRect::bottom().y + radius())
+	else if (getPosition().y < VisibleRect::bottom().y + radius)
 	{
-		setPosition(getPosition().x, VisibleRect::bottom().y + radius());
+		setPosition(getPosition().x, VisibleRect::bottom().y + radius);
 		velocity.y *= -1;
 	}
-}
-
-//반지름 계산
-float Enemy::radius()
-{
-	return getTexture()->getContentSize().width / 2;	
 }
 
 void Enemy::onEnter()
 {
-	//log("radius : %f ", radius());
+	//log("radius : %f ", radius);
 	Sprite::onEnter();
 }
 

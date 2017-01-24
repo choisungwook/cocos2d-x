@@ -145,8 +145,10 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
+    <ClCompile Include="..\Classes\CustomCollision.cpp" />
     <ClCompile Include="..\Classes\HelloWorldScene.cpp" />
     <ClCompile Include="..\Classes\LogoScene.cpp" />
+    <ClCompile Include="..\Classes\MenuScene.cpp" />
     <ClCompile Include="..\Classes\Sprite_Character.cpp" />
     <ClCompile Include="..\Classes\Sprite_enemy.cpp" />
     <ClCompile Include="..\Classes\VisibleRect.cpp" />
@@ -154,8 +156,10 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Classes\AppDelegate.h" />
+    <ClInclude Include="..\Classes\CustomCollision.h" />
     <ClInclude Include="..\Classes\HelloWorldScene.h" />
     <ClInclude Include="..\Classes\LogoScene.h" />
+    <ClInclude Include="..\Classes\MenuScene.h" />
     <ClInclude Include="..\Classes\Sprite_Character.h" />
     <ClInclude Include="..\Classes\Sprite_enemy.h" />
     <ClInclude Include="..\Classes\VisibleRect.h" />

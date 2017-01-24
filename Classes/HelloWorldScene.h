@@ -18,19 +18,19 @@ public:
 	void gameLogic(float dt);
 	bool isPlaying;
 
-	//��ġ �̺�Ʈ ���� �Լ�
-	virtual bool onTouch(cocos2d::Touch* touch, cocos2d::Event* event);
+	// touch events
+	virtual bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
 	virtual void onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event);
 	virtual void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);
 
-	//ĳ���� ���� �Լ�
+	// initalize functions
 	void initalizeCharacter();
+	void initalizeMenu();
 
 	//test Option Layer
 	cocos2d::Layer* OptionLayer = NULL;
 	cocos2d::Sprite* rect;
-	bool isPause = false;
-	void initalizeMenu();
+	bool isPause = false;	
 	void ButtonCallback(Ref* pSender);
 	void OptionCallback(Ref* pSender);
 	void CloseGameCallback(Ref* pSender);
@@ -56,6 +56,13 @@ private:
 	cocos2d::Vec2 pos_TouchBefore;
 	cocos2d::Vec2 pos_SpriteBefore;
 	cocos2d::Vector<Enemy*> vector_enemies;
+	cocos2d::Sprite* background;
+
+	// about character 
+	float min_x;
+	float min_y;
+	float max_x;
+	float max_y;
 
 	// data
 	int MaxTime = 0;

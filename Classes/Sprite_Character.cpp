@@ -1,5 +1,6 @@
 #include "Sprite_Character.h"
 #include "VisibleRect.h"
+#include "CustomCollision.h"
 USING_NS_CC;
 
 MyCharacter* MyCharacter::create(const std::string & filename)
@@ -7,6 +8,7 @@ MyCharacter* MyCharacter::create(const std::string & filename)
 	MyCharacter *sprite = new (std::nothrow) MyCharacter();
 	//경로가 존재하면 자동으로 동적 메모리 제거 기능 추가하고 sprite를 리턴
 	if (sprite && sprite->initWithFile(filename)) {
+		sprite->set_radius(sprite->getContentSize().width / 2);
 		sprite->autorelease();		
 		return sprite;
 	}
@@ -23,65 +25,18 @@ MyCharacter::~MyCharacter()
 {
 }
 
-/*******************************************
-Touch Event
-********************************************/
-
-bool MyCharacter::onTouchBegan(cocos2d::Touch * touch, cocos2d::Event * event)
-{
-	/*auto target = static_cast<Sprite*>(event->getCurrentTarget());
-	Point pos = target->convertToNodeSpace(touch->getLocation());
-	Rect rect = Rect(0, 0, target->getContentSize().width, target->getContentSize().height);*/
-	if (state_Touched) return false;
-
-	pos_TouchBefore = touch->getLocation();
-	pos_SpriteBefore = this->getPosition();
-	_state = state_Touched;
-	return true;
-}
-
-void MyCharacter::onTouchMoved(cocos2d::Touch * touch, cocos2d::Event * event)
-{
-	auto pos_cur = touch->getLocation();
-	auto pos_character = this->getPosition();
-	float diff_x = pos_cur.x - pos_TouchBefore.x;
-	float diff_y = pos_cur.y - pos_TouchBefore.y;
-
-	float x = pos_SpriteBefore.x + diff_x;
-	float y = pos_SpriteBefore.y + diff_y;
-
-	//창크기 검사
-	if (x > max_x) x = max_x;
-	if (x < min_x) x = min_x;
-	if (y > max_y) y = max_y;
-	if (y < min_y) y = min_y;
-
-	this->setPosition(ccp(x, y));
-}
-
-void MyCharacter::onTouchEnded(cocos2d::Touch * touch, cocos2d::Event * event)
-{
-	_state = state_UnTouched;
-}
-
-Rect MyCharacter::collisionRegion()
-{
-	auto r = getBoundingBox();
-	auto pos = getPosition();
-
-	r.origin = ccp(pos.x - r.size.width/2 * 0.4 , pos.y - r.size.height/2 * 0.5 );
-	r.size = Size(r.size.width/2 * 0.75, r.size.height / 2 * 0.65);
-
-	return r;
-}
-
 //적들과 충돌체크
 bool MyCharacter::collisionWithEnemy(Enemy* enemy)
 {
-	auto characterRect = collisionRegion();
-	auto enemyRect = enemy->getBoundingBox();
+	Point srcPos = { getPosition().x, getPosition().y };
+	float srcRadius = getContentSize().width / 2 ;
+	
+	Point dstPos = { enemy->getPosition().x, enemy->getPosition().y };
+	float dstRadius = enemy->get_radius();
 
-	if (characterRect.intersectsRect(enemyRect)) {
+	bool collision = CollisionFunc::collisionCircleToCircle(srcPos, radius, dstPos, dstRadius);
+
+	if (collision) {
 		return true;
 	}
 
@@ -91,27 +46,6 @@ bool MyCharacter::collisionWithEnemy(Enemy* enemy)
 void MyCharacter::onEnter()
 {
 	Sprite::onEnter();
-
-	//터치이벤트 등록
-	auto listener = EventListenerTouchOneByOne::create();
-	listener->setSwallowTouches(true);
-
-	listener->onTouchBegan = CC_CALLBACK_2(MyCharacter::onTouchBegan, this);
-	listener->onTouchMoved = CC_CALLBACK_2(MyCharacter::onTouchMoved, this);
-	listener->onTouchEnded = CC_CALLBACK_2(MyCharacter::onTouchEnded, this);
-
-	_eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
-
-	//캐릭터가 화면 범위 밖에 나가지 못하도록 ...
-	float character_width = this->getContentSize().width;
-	float character_height = this->getContentSize().height;
-
-	//캐릭터가 이동할 수 있는 최소,최대크기(상대적 거리)
-	min_x = 0 + character_width / 2;
-	max_x = VisibleRect::getVisibleRect().size.width - character_width / 2;
-	min_y = 0 + character_height / 2;
-	max_y = VisibleRect::getVisibleRect().size.height - character_height / 2;
-
 }
 
 void MyCharacter::onExit()

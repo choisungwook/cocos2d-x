@@ -10,9 +10,10 @@ public:
 	virtual ~Enemy();
 
 	static Enemy* create(const std::string & filename);
-
 	void move(); // 이동
-	float radius(); //반지름 계산
+
+	//gettter, setter raduis
+	CC_SYNTHESIZE(float, radius, _radius);
 
 	virtual void onEnter() override;
 	virtual void onExit() override;

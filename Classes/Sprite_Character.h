@@ -16,34 +16,21 @@ public:
 	MyCharacter();
 	virtual ~MyCharacter();
 	
-	//touch event
-	bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
-	void onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event);
-	void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);		
-
-	//Rect
-	Rect collisionRegion();
-
-	//적들과 충돌체크
+	//check collide the enemies
 	bool collisionWithEnemy(Enemy* enemy);
+	//gettter, setter raduis
+	CC_SYNTHESIZE(float, radius, _radius);
 
 	//Life cycles
 	virtual void onEnter() override;
 	virtual void onExit() override;
 
-	//sprite 생성해서 주소를 리턴
 	static MyCharacter* create(const std::string& filename);
 
 private:
 	CharacterState _state;
 	cocos2d::Vec2 pos_TouchBefore;
 	cocos2d::Vec2 pos_SpriteBefore;
-
-	//캐릭터 크기 
-	float min_x;
-	float min_y;
-	float max_x;
-	float max_y;
 };
 
 #endif
