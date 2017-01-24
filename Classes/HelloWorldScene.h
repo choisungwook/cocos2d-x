@@ -8,11 +8,13 @@
 class HelloWorld : public cocos2d::LayerColor
 {
 public:
-	static cocos2d::Scene* createScene();
-	virtual bool init();
-	// implement the "static create()" method manually
-	CREATE_FUNC(HelloWorld);
+    static cocos2d::Scene* createScene();
+    virtual bool init();    
+    // implement the "static create()" method manually
+    CREATE_FUNC(HelloWorld);
 
+
+	void initBackground();
 	//게임 흐름에 관련된 함수	
 	void startGame(float dt);
 	void gameLogic(float dt);
@@ -26,12 +28,18 @@ public:
 	//캐릭터 관련 함수
 	void initalizeCharacter();
 
+
 	//test Option Layer
 	cocos2d::Layer* OptionLayer = NULL;
 	cocos2d::Sprite* rect;
 	bool isPause = false;
 	void initalizeMenu();
+
 	void ButtonCallback(Ref* pSender);
+	void Button1Callback(Ref* pSender);
+	void Button2Callback(Ref* pSender);
+	void Button3Callback(Ref* pSender);
+
 	void OptionCallback(Ref* pSender);
 	void CloseGameCallback(Ref* pSender);
 	void ReturnGameCallback(Ref* pSender);
@@ -44,9 +52,12 @@ public:
 	void UpdateTimer(float dt);
 
 	//data save & road
+	int getItem1;
+	int getItem2;
+	int getItem3;
 	void SaveData();
 	void LoadData();
-
+	
 	//적(총알역할) 관련 함수 & 변수
 	void initializeEnemy(float dt);
 	cocos2d::Vec2 origin = cocos2d::Director::getInstance()->getVisibleOrigin();
@@ -56,7 +67,7 @@ private:
 	cocos2d::Vec2 pos_TouchBefore;
 	cocos2d::Vec2 pos_SpriteBefore;
 	cocos2d::Vector<Enemy*> vector_enemies;
-
+	
 	// data
 	int MaxTime = 0;
 

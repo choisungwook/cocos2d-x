@@ -18,15 +18,23 @@ bool ItemScene::init()
 		return false;
 	}
 
-	auto Item_1_Button = MenuItemImage::create("1.png", "1.png", CC_CALLBACK_1(ItemScene::itemCallBack1, this));
-	auto Item_2_Button = MenuItemImage::create("2.png", "2.png", CC_CALLBACK_1(ItemScene::itemCallBack2, this));
-	auto Item_3_Button = MenuItemImage::create("3.png", "3.png", CC_CALLBACK_1(ItemScene::itemCallBack3, this));
-	auto menu = Menu::create(Item_1_Button, Item_2_Button, Item_3_Button, NULL);
-	menu->setOpacity(255);
-	menu->alignItemsHorizontally();
-	menu->setPosition(ccp(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2));
-	this->addChild(menu);
+	Iteminit();
 
+	LoadItem();
+
+	MaxPoint = UserDefault::getInstance()->getDoubleForKey("data");
+	char str[100];
+	sprintf(str, "%s%d", "Maximum : ",MaxPoint);
+
+	auto point = Label::createWithSystemFont("", "Ariel", 20);
+	point->setColor(Color3B::ORANGE);
+	point->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height*0.9);
+	this->addChild(point);
+
+	point->setString(str);
+
+	
+	//change scene
 	auto BackButton = MenuItemImage::create("returngame.jpg", "returngame.jpg", CC_CALLBACK_1(ItemScene::changeScene, this));
 	auto BackMenu = Menu::create(BackButton, NULL);
 	BackMenu->setPosition(ccp(VisibleRect::getVisibleRect().size.width/2, VisibleRect::getVisibleRect().size.height /5));
@@ -34,6 +42,7 @@ bool ItemScene::init()
 
 	return true;
 }
+
 
 void ItemScene::changeScene(Object *pSender)
 {
@@ -44,15 +53,65 @@ void ItemScene::changeScene(Object *pSender)
 	Director::getInstance()->replaceScene(pTran);
 }
 
+void ItemScene::Iteminit()
+{
+	Item_1_Button = MenuItemImage::create("1.png", "1.png", CC_CALLBACK_1(ItemScene::itemCallBack1, this));
+	Item_2_Button = MenuItemImage::create("2.png", "2.png", CC_CALLBACK_1(ItemScene::itemCallBack2, this));
+	Item_3_Button = MenuItemImage::create("3.png", "3.png", CC_CALLBACK_1(ItemScene::itemCallBack3, this));
+	
+	Item_1_Button->setOpacity(150);
+	Item_2_Button->setOpacity(150);
+	Item_3_Button->setOpacity(150);
+
+	auto menu = Menu::create(Item_1_Button, Item_2_Button, Item_3_Button, NULL);
+	
+	menu->alignItemsHorizontally();
+	menu->setPosition(ccp(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2));
+	this->addChild(menu);
+}
+
+void ItemScene::LoadItem()
+{
+	getItem1 = UserDefault::getInstance()->getIntegerForKey("item1");
+	getItem2 = UserDefault::getInstance()->getIntegerForKey("item2");
+	getItem3 = UserDefault::getInstance()->getIntegerForKey("item3");
+	
+	if(getItem1 == 1)
+		Item_1_Button->setOpacity(255);
+	if (getItem2 == 1)
+		Item_2_Button->setOpacity(255); 
+	if (getItem3 == 1)
+		Item_3_Button->setOpacity(255);
+}
+
+//buy item
 void ItemScene::itemCallBack1(Object *pSender)
 {
-
+	if (MaxPoint >= 30 && getItem1 == 0)
+	{
+		Item_1_Button->setOpacity(255);
+		UserDefault::getInstance()->setIntegerForKey("item1", 1);
+		UserDefault::getInstance()->flush();
+		log("%d", MaxPoint);
+	}
 }
 void ItemScene::itemCallBack2(Object *pSender)
 {
-
+	if (MaxPoint >= 50 && getItem2 == 0)
+	{
+		Item_2_Button->setOpacity(255);
+		UserDefault::getInstance()->setIntegerForKey("item2", 1);
+		UserDefault::getInstance()->flush();
+		log("%d", MaxPoint);
+	}
 }
 void ItemScene::itemCallBack3(Object *pSender)
 {
-
+	if (MaxPoint >= 80 && getItem3 == 0)
+	{
+		Item_3_Button->setOpacity(255);
+		UserDefault::getInstance()->setIntegerForKey("item3", 1);
+		UserDefault::getInstance()->flush();
+		log("%d", MaxPoint);
+	}
 }
