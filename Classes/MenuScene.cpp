@@ -1,6 +1,7 @@
 #include "MenuScene.h"
 #include "HelloWorldScene.h"
 #include "VisibleRect.h"
+#include "ItemScene.h"
 USING_NS_CC;
 
 Scene* MenuScene::createScene()
@@ -33,19 +34,22 @@ bool MenuScene::init()
 void MenuScene::changeScene(Object *pSender)
 {
 	auto playScene_change = HelloWorld::createScene();
-
-	TransitionScene * pTran = TransitionFade::create(2.0f, playScene_change);
-
+	TransitionScene * pTran = TransitionFade::create(1.0f, playScene_change);
 	Director::getInstance()->replaceScene(pTran);
 }
 
 void MenuScene::itemCallBack(Object *pSender)
 {
+	/*
 	int MaxTime = UserDefault::getInstance()->getDoubleForKey("data");
 	char str[100];
 	sprintf(str, "%d", MaxTime);
 	MessageBox(str, "Alert");
+	*/
 
+	auto ItemScene_change = ItemScene::createScene();
+	TransitionScene * pTran = TransitionFade::create(1.0f, ItemScene_change);
+	Director::getInstance()->replaceScene(pTran);
 }
 
 

@@ -8,12 +8,11 @@
 class HelloWorld : public cocos2d::LayerColor
 {
 public:
-	static cocos2d::Scene* createScene();
-	virtual bool init();
-	// implement the "static create()" method manually
-	CREATE_FUNC(HelloWorld);
-
-	//ï¿½ï¿½ï¿½ï¿½ ï¿½å¸§ï¿½ï¿½ ï¿½ï¿½ï¿½Ãµï¿½ ï¿½Ô¼ï¿½	
+    static cocos2d::Scene* createScene();
+    virtual bool init();    
+    // implement the "static create()" method manually
+    CREATE_FUNC(HelloWorld);
+	
 	void startGame(float dt);
 	void gameLogic(float dt);
 	bool isPlaying;
@@ -27,11 +26,17 @@ public:
 	void initalizeCharacter();
 	void initalizeMenu();
 
+
 	//test Option Layer
 	cocos2d::Layer* OptionLayer = NULL;
 	cocos2d::Sprite* rect;
-	bool isPause = false;	
+	bool isPause = false;
+
 	void ButtonCallback(Ref* pSender);
+	void Button1Callback(Ref* pSender);
+	void Button2Callback(Ref* pSender);
+	void Button3Callback(Ref* pSender);
+
 	void OptionCallback(Ref* pSender);
 	void CloseGameCallback(Ref* pSender);
 	void ReturnGameCallback(Ref* pSender);
@@ -44,15 +49,18 @@ public:
 	void UpdateTimer(float dt);
 
 	//data save & road
+	int getItem1;
+	int getItem2;
+	int getItem3;
 	void SaveData();
 	void LoadData();
-
-	//ï¿½ï¿½(ï¿½Ñ¾Ë¿ï¿½ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ & ï¿½ï¿½ï¿½ï¿½
+	
+	//Àû(ÃÑ¾Ë¿ªÇÒ) °ü·Ã ÇÔ¼ö & º¯¼ö
 	void initializeEnemy(float dt);
 	cocos2d::Vec2 origin = cocos2d::Director::getInstance()->getVisibleOrigin();
 
 private:
-	MyCharacter* sprite_Character; //ï¿½ï¿½ï¿½ï¿½Ä³ï¿½ï¿½ï¿½ï¿½
+	MyCharacter* sprite_Character;
 	cocos2d::Vec2 pos_TouchBefore;
 	cocos2d::Vec2 pos_SpriteBefore;
 	cocos2d::Vector<Enemy*> vector_enemies;

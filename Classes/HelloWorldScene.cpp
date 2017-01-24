@@ -8,27 +8,27 @@ USING_NS_CC;
 
 Scene* HelloWorld::createScene()
 {
-	// 'scene' is an autorelease object
-	auto scene = Scene::create();
+    // 'scene' is an autorelease object
+    auto scene = Scene::create();
+    
+    // 'layer' is an autorelease object
+    auto layer = HelloWorld::create();
 
-	// 'layer' is an autorelease object
-	auto layer = HelloWorld::create();
+    // add layer as a child to scene
+    scene->addChild(layer);
 
-	// add layer as a child to scene
-	scene->addChild(layer);
-
-	// return the scene
-	return scene;
+    // return the scene
+    return scene;
 }
 
 // on "init" you need to initialize your instance
 bool HelloWorld::init()
 {
-	//////////////////////////////
-	// 1. super init first
-	if (!LayerColor::initWithColor(Color4B(255, 255, 255, 255))) {
-		return false;
-	}
+    //////////////////////////////
+    // 1. super init first
+    if ( !LayerColor::initWithColor(Color4B(255, 255, 255, 255))) {
+        return false;
+    }   
 
 	//create the background
 	background = Sprite::create("background2.png");	
@@ -68,8 +68,9 @@ bool HelloWorld::init()
 	initTimer();
 	this->schedule(schedule_selector(HelloWorld::UpdateTimer), 0.1f);
 
-	return true;
+    return true;
 }
+
 void HelloWorld::initalizeMenu()
 {
 	//test option button
@@ -82,10 +83,25 @@ void HelloWorld::initalizeMenu()
 
 	log("%f %f", (VisibleRect::getVisibleRect().size.width*0.9, VisibleRect::getVisibleRect().size.height*0.9));
 
-	//item button
-	auto sprButton = MenuItemImage::create("power.png", "power1.png", CC_CALLBACK_1(HelloWorld::ButtonCallback, this));
-	sprButton->setScale(0.7f);
 
+
+	//item button
+	MenuItemImage* sprButton;
+	
+	if (getItem3 == 1)
+		sprButton = MenuItemImage::create("3.png", "3.png", CC_CALLBACK_1(HelloWorld::Button3Callback, this));
+	else if (getItem2 == 1)
+		sprButton = MenuItemImage::create("2.png", "2.png", CC_CALLBACK_1(HelloWorld::Button2Callback, this));
+    else if(getItem1 == 1)
+		sprButton = MenuItemImage::create("1.png", "1.png", CC_CALLBACK_1(HelloWorld::Button1Callback, this));
+	else
+	{
+		sprButton = MenuItemImage::create("power.png", "power.png", CC_CALLBACK_1(HelloWorld::ButtonCallback, this));
+		sprButton->setOpacity(100);
+	}
+	
+	sprButton->setScale(0.7f);
+	
 	auto menu = Menu::create(sprButton, NULL);
 	menu->setPosition(ccp(VisibleRect::getVisibleRect().size.width*0.9, VisibleRect::getVisibleRect().size.height*0.2));
 	this->addChild(menu, 1);
@@ -98,7 +114,7 @@ void HelloWorld::initalizeMenu()
 }
 
 /*******************************************
-timer
+	timer
 ********************************************/
 void HelloWorld::initTimer()
 {
@@ -112,15 +128,15 @@ void HelloWorld::UpdateTimer(float dt)
 	chkTime += 0.1;
 	char timeScore[100] = { 0 };
 	sprintf(timeScore, "%.1f", chkTime);
-
+	
 	timerLabel->setString(timeScore);
 }
 
 /*******************************************
-Save data (testing)
+	Save data (testing)
 ********************************************/
 void HelloWorld::SaveData() {
-
+	
 	LoadData();
 	if (MaxTime < (int)chkTime)
 	{
@@ -131,11 +147,14 @@ void HelloWorld::SaveData() {
 
 void HelloWorld::LoadData() {
 	MaxTime = UserDefault::getInstance()->getDoubleForKey("data");
+	getItem1 = UserDefault::getInstance()->getIntegerForKey("item1");
+	getItem2 = UserDefault::getInstance()->getIntegerForKey("item2");
+	getItem3 = UserDefault::getInstance()->getIntegerForKey("item3");
 }
 
 
 /*******************************************
-Game menu
+	Game menu
 ********************************************/
 
 void HelloWorld::OptionCallback(Ref* pSender)
@@ -193,15 +212,30 @@ void HelloWorld::CloseGameCallback(Ref* pSender)
 #endif
 	SaveData();
 	Director::getInstance()->end();
-
+	
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 	exit(0);
 #endif
 }
 
+void HelloWorld::Button1Callback(Ref* pSender)
+{
+	log("callback 1");
+	//item button call back
+}
+void HelloWorld::Button2Callback(Ref* pSender)
+{
+	log("callback 2");
+	//item button call back
+}
+void HelloWorld::Button3Callback(Ref* pSender)
+{
+	log("callback 3");
+	//item button call back
+}
 void HelloWorld::ButtonCallback(Ref* pSender)
 {
-	log("callback");
+	log("callback not item");
 	//item button call back
 }
 
@@ -214,7 +248,7 @@ void HelloWorld::ReturnScene(Ref* pSender)
 
 
 /*******************************************
-Game Update
+	Game Update
 ********************************************/
 
 void HelloWorld::startGame(float dt)
@@ -246,7 +280,7 @@ void HelloWorld::gameLogic(float dt)
 }
 
 /*******************************************
-Character
+	Character
 ********************************************/
 
 //initialize the character
@@ -258,7 +292,7 @@ void HelloWorld::initalizeCharacter() {
 }
 
 /*******************************************
-Enemy
+	Enemy
 ********************************************/
 
 void HelloWorld::initializeEnemy(float dt)
@@ -297,7 +331,7 @@ void HelloWorld::initializeEnemy(float dt)
 		else if (pos == 3) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.6));
 		else if (pos == 4) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.8));
 	}
-	
+
 	this->addChild(enemy);
 
 	//initalize the speed
@@ -306,7 +340,7 @@ void HelloWorld::initializeEnemy(float dt)
 }
 
 /*******************************************
-Touch Event
+	Touch Event
 ********************************************/
 
 bool HelloWorld::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
@@ -332,6 +366,7 @@ void HelloWorld::onTouchMoved(Touch* touch, Event* event) {
 	if (y < min_y) y = min_y;
 
 	sprite_Character->setPosition(ccp(x, y));
+
 }
 
 void HelloWorld::onTouchEnded(Touch* touch, Event* event) {
