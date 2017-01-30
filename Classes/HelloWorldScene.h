@@ -15,7 +15,6 @@ public:
 	
 	void startGame(float dt);
 	void gameLogic(float dt);
-	bool isPlaying;
 
 	// touch events
 	virtual bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
@@ -23,41 +22,28 @@ public:
 	virtual void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);
 
 	// initalize functions
+	void initalizeBackground();
 	void initalizeCharacter();
 	void initalizeMenu();
-
-
-	//test Option Layer
-	cocos2d::Layer* OptionLayer = NULL;
-	cocos2d::Sprite* rect;
-	bool isPause = false;
-
-	void ButtonCallback(Ref* pSender);
-	void Button1Callback(Ref* pSender);
-	void Button2Callback(Ref* pSender);
-	void Button3Callback(Ref* pSender);
-
+	void initalizeTimer();
+	void initializItem();
+	void initializeEnemy(float dt);
+	
 	void OptionCallback(Ref* pSender);
 	void CloseGameCallback(Ref* pSender);
 	void ReturnGameCallback(Ref* pSender);
 	void ReturnScene(Ref* pSender);
-
-	//timer
-	double chkTime = 0;
-	Label* timerLabel;
-	void initTimer();
+	void EatItemCallback(Ref* pSender);
+		
 	void UpdateTimer(float dt);
+	void EatTimer(float dt);
 
 	//data save & road
 	int getItem1;
 	int getItem2;
 	int getItem3;
 	void SaveData();
-	void LoadData();
-	
-	//적(총알역할) 관련 함수 & 변수
-	void initializeEnemy(float dt);
-	cocos2d::Vec2 origin = cocos2d::Director::getInstance()->getVisibleOrigin();
+	void LoadData();	
 
 private:
 	MyCharacter* sprite_Character;
@@ -65,6 +51,25 @@ private:
 	cocos2d::Vec2 pos_SpriteBefore;
 	cocos2d::Vector<Enemy*> vector_enemies;
 	cocos2d::Sprite* background;
+	cocos2d::Vec2 origin = cocos2d::Director::getInstance()->getVisibleOrigin();
+
+	//Item
+	cocos2d::MenuItemImage* eatItem;
+
+	//timer
+	double chkTime = 0;
+	double EatTime = 3.0f;
+	Label* timerLabel;
+	Label* eattimerLabel;
+
+	//Option Layer
+	cocos2d::Layer* OptionLayer = NULL;
+
+	//state
+	bool isPause = false;
+
+	//Option Layer
+	cocos2d::Layer* ItemLayer = NULL;
 
 	// about character 
 	float min_x;

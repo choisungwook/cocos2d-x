@@ -15,7 +15,6 @@ public:
 	virtual bool init();
 
 	void changeScene(Object *pSender);
-	void itemCallBack(Object *pSender);
 	void CloseGameCallback(Ref* pSender);
 
 	CREATE_FUNC(MenuScene);

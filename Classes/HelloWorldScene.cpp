@@ -3,6 +3,8 @@
 #include "VisibleRect.h"
 #include "MenuScene.h"
 #include <string>
+#include "resources.cpp"
+#include "Gameover.h"
 
 USING_NS_CC;
 
@@ -30,17 +32,15 @@ bool HelloWorld::init()
         return false;
     }   
 
-	//create the background
-	background = Sprite::create("background2.png");	
-	background->setPosition(VisibleRect::getVisibleRect().size.width/2, VisibleRect::getVisibleRect().size.height/2);
-	addChild(background);
-
-	//dataLoading
-	LoadData();
-
-	//¸Þ´º »ý¼º
+	//set up
+	initalizeBackground();
 	initalizeMenu();
 	initalizeCharacter();
+	initalizeTimer();
+	initializItem();
+
+	//dataLoading
+	LoadData();	
 
 	// initalize Touch events
 	auto listener = EventListenerTouchOneByOne::create();
@@ -61,243 +61,70 @@ bool HelloWorld::init()
 	min_y = 0 + character_height / 2;
 	max_y = VisibleRect::getVisibleRect().size.height - character_height / 2;
 
+	//initalize schedules
 	this->schedule(schedule_selector(HelloWorld::initializeEnemy), 1.0f);
-	// 1ì´ˆí›„ ê²Œìž„ ?ï¿½ìž‘
 	this->scheduleOnce(schedule_selector(HelloWorld::startGame), 1.0f);
-	// time counting 0.1s
-	initTimer();
 	this->schedule(schedule_selector(HelloWorld::UpdateTimer), 0.1f);
 
     return true;
 }
 
+/*******************************************
+	initalize
+********************************************/
+
+void HelloWorld::initalizeBackground()
+{
+	//create the background
+	background = Sprite::create(resources::background);
+	background->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2);
+	addChild(background);
+
+	auto earth = Sprite::create("earth.png");
+	earth->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2);
+	earth->setOpacity(70);
+	addChild(earth);
+
+	auto moon = Sprite::create("moon.png");
+	moon->setPosition(VisibleRect::getVisibleRect().size.width / 4, VisibleRect::getVisibleRect().size.height * 0.7);
+	moon->setOpacity(90);
+	addChild(moon);
+}
+
 void HelloWorld::initalizeMenu()
 {
-	//test option button
-	auto sprOption = MenuItemImage::create("settings.png", "settings.png", CC_CALLBACK_1(HelloWorld::OptionCallback, this));
-	sprOption->setScale(0.5f);
-
+	auto sprOption = MenuItemImage::create(resources::setting, resources::setting, CC_CALLBACK_1(HelloWorld::OptionCallback, this));
+	sprOption->setOpacity(80);
 	auto menuOption = Menu::create(sprOption, NULL);
 	menuOption->setPosition(ccp((VisibleRect::getVisibleRect().size.width*0.9), (VisibleRect::getVisibleRect().size.height*0.9)));
-	this->addChild(menuOption, 1);
-
-	log("%f %f", (VisibleRect::getVisibleRect().size.width*0.9, VisibleRect::getVisibleRect().size.height*0.9));
-
-
-
-	//item button
-	MenuItemImage* sprButton;
-	
-	if (getItem3 == 1)
-		sprButton = MenuItemImage::create("3.png", "3.png", CC_CALLBACK_1(HelloWorld::Button3Callback, this));
-	else if (getItem2 == 1)
-		sprButton = MenuItemImage::create("2.png", "2.png", CC_CALLBACK_1(HelloWorld::Button2Callback, this));
-    else if(getItem1 == 1)
-		sprButton = MenuItemImage::create("1.png", "1.png", CC_CALLBACK_1(HelloWorld::Button1Callback, this));
-	else
-	{
-		sprButton = MenuItemImage::create("power.png", "power.png", CC_CALLBACK_1(HelloWorld::ButtonCallback, this));
-		sprButton->setOpacity(100);
-	}
-	
-	sprButton->setScale(0.7f);
-	
-	auto menu = Menu::create(sprButton, NULL);
-	menu->setPosition(ccp(VisibleRect::getVisibleRect().size.width*0.9, VisibleRect::getVisibleRect().size.height*0.2));
-	this->addChild(menu, 1);
-
-	/*
-	auto sprtest = Sprite::create("1.jpg");
-	sprtest->setPosition(menuOption->getPosition());
-	this->addChild(sprtest);
-	*/
+	this->addChild(menuOption, resources::menuOrder);	
 }
 
-/*******************************************
-	timer
-********************************************/
-void HelloWorld::initTimer()
+void HelloWorld::initalizeTimer()
 {
-	timerLabel = Label::createWithSystemFont("", "Ariel", 20);
-	timerLabel->setColor(Color3B::ORANGE);
+	timerLabel = Label::createWithSystemFont("", "Ariel", 30);
+	timerLabel->setColor(Color3B::WHITE);
 	timerLabel->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height*0.9);
 	this->addChild(timerLabel);
-}
-void HelloWorld::UpdateTimer(float dt)
-{
-	chkTime += 0.1;
-	char timeScore[100] = { 0 };
-	sprintf(timeScore, "%.1f", chkTime);
-	
-	timerLabel->setString(timeScore);
-}
 
-/*******************************************
-	Save data (testing)
-********************************************/
-void HelloWorld::SaveData() {
-	
-	LoadData();
-	if (MaxTime < (int)chkTime)
-	{
-		UserDefault::getInstance()->setDoubleForKey("data", chkTime);
-		UserDefault::getInstance()->flush();
-	}
+	eattimerLabel = Label::createWithSystemFont("", "Ariel", 30);
+	eattimerLabel->setColor(Color3B::ORANGE);
+	eattimerLabel->setPosition(VisibleRect::getVisibleRect().size.width * 0.7, VisibleRect::getVisibleRect().size.height*0.9);
+	this->addChild(eattimerLabel);
+
+	EatTime = 3.0f;
 }
 
-void HelloWorld::LoadData() {
-	MaxTime = UserDefault::getInstance()->getDoubleForKey("data");
-	getItem1 = UserDefault::getInstance()->getIntegerForKey("item1");
-	getItem2 = UserDefault::getInstance()->getIntegerForKey("item2");
-	getItem3 = UserDefault::getInstance()->getIntegerForKey("item3");
-}
-
-
-/*******************************************
-	Game menu
-********************************************/
-
-void HelloWorld::OptionCallback(Ref* pSender)
-{
-	log("Option open");
-
-	if (isPause == false) {
-		isPause = true;
-		Director::getInstance()->getScheduler()->pauseTarget(this); //ï¿½ï¿½ï¿½ï¿½ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½
-
-		if (OptionLayer == NULL) {
-			OptionLayer = Layer::create();
-			this->addChild(OptionLayer, 2);
-		}
-
-		sprite_Character->stopAllActions();
-
-		Rect rectOption = OptionLayer->getBoundingBox();
-
-		rect = Sprite::create("option.jpg");
-		rect->setOpacity(150);
-		rect->setPosition(Point(rectOption.getMaxX() / 2, rectOption.getMaxY() / 2));
-		OptionLayer->addChild(rect);
-
-		auto returnButton = MenuItemImage::create("returngame.jpg", "returngame.jpg", CC_CALLBACK_1(HelloWorld::ReturnGameCallback, this));
-		auto backButton = MenuItemImage::create("backgame.jpg", "backgame.jpg", CC_CALLBACK_1(HelloWorld::ReturnScene, this));
-		auto CloseGameButton = MenuItemImage::create("endgame.jpg", "endgame.jpg", CC_CALLBACK_1(HelloWorld::CloseGameCallback, this));
-		auto menu = Menu::create(returnButton, backButton, CloseGameButton, NULL);
-		menu->setOpacity(180);
-		menu->alignItemsVertically();
-		menu->setPosition(ccp(rectOption.getMaxX() / 2, rectOption.getMaxY() / 2));
-		OptionLayer->addChild(menu);
-	}
-	else {
-		isPause = false;
-		Director::getInstance()->getScheduler()->resumeTarget(this);
-		OptionLayer->removeAllChildren();
-		sprite_Character->resume();
-	}
-}
-
-void HelloWorld::ReturnGameCallback(Ref* pSender)
-{
-	isPause = false;
-	Director::getInstance()->getScheduler()->resumeTarget(this);
-	OptionLayer->removeAllChildren();
-	sprite_Character->resume();
-}
-
-void HelloWorld::CloseGameCallback(Ref* pSender)
-{
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.", "Alert");
-	return;
-#endif
-	SaveData();
-	Director::getInstance()->end();
-	
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-	exit(0);
-#endif
-}
-
-void HelloWorld::Button1Callback(Ref* pSender)
-{
-	log("callback 1");
-	//item button call back
-}
-void HelloWorld::Button2Callback(Ref* pSender)
-{
-	log("callback 2");
-	//item button call back
-}
-void HelloWorld::Button3Callback(Ref* pSender)
-{
-	log("callback 3");
-	//item button call back
-}
-void HelloWorld::ButtonCallback(Ref* pSender)
-{
-	log("callback not item");
-	//item button call back
-}
-
-void HelloWorld::ReturnScene(Ref* pSender)
-{
-	SaveData(); // max Time save
-	auto pTran = MenuScene::createScene();
-	Director::getInstance()->replaceScene(pTran);
-}
-
-
-/*******************************************
-	Game Update
-********************************************/
-
-void HelloWorld::startGame(float dt)
-{
-	isPlaying = true;
-
-	this->schedule(schedule_selector(HelloWorld::gameLogic), 2.0f / 60.0f);
-}
-
-void HelloWorld::gameLogic(float dt)
-{
-	// move enemies
-	for (auto& enemy : vector_enemies) {
-		enemy->move();		
-	}
-
-	// check collision character with enemies
-	for (auto iter_enemy = vector_enemies.begin(); iter_enemy != vector_enemies.end();)
-	{		
-		if (sprite_Character->collisionWithEnemy(*iter_enemy)) {
-			MessageBox("Collision",""); // test message box
-			removeChild(*iter_enemy); 
-			iter_enemy = vector_enemies.erase(iter_enemy);			
-		}
-		else {
-			++iter_enemy;
-		}
-	}
-}
-
-/*******************************************
-	Character
-********************************************/
-
-//initialize the character
 void HelloWorld::initalizeCharacter() {
 	//create the character sprite
-	sprite_Character = MyCharacter::create("me.png");
+	sprite_Character = MyCharacter::create(resources::character);
 	sprite_Character->setPosition(ccp((VisibleRect::getVisibleRect().size.width / 2), (VisibleRect::getVisibleRect().size.height / 2)));
 	this->addChild(sprite_Character);
 }
 
-/*******************************************
-	Enemy
-********************************************/
-
 void HelloWorld::initializeEnemy(float dt)
 {
-	Enemy* enemy = Enemy::create("ball.png");
+	Enemy* enemy = Enemy::create(resources::ball);
 
 	int sides = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
 	int gap = -3;
@@ -335,8 +162,181 @@ void HelloWorld::initializeEnemy(float dt)
 	this->addChild(enemy);
 
 	//initalize the speed
-	enemy->setvelocity(Vec2(2, 2));
+	auto velocity_x = cocos2d::random(1, 7);
+	auto velocity_y = cocos2d::random(1, 7);
+
+	enemy->setvelocity(Vec2(velocity_x, velocity_y));
 	vector_enemies.pushBack(enemy);
+}
+
+void HelloWorld::initializItem()
+{
+	if (ItemLayer == NULL) {
+		ItemLayer = Layer::create();
+		this->addChild(ItemLayer, 2);
+
+		eatItem = MenuItemImage::create(resources::Itemeat, resources::Itemeat, CC_CALLBACK_1(HelloWorld::EatItemCallback, this));
+		auto menu = Menu::create(eatItem, NULL);
+		menu->setPosition(VisibleRect::getVisibleRect().size.width * 0.9, VisibleRect::getVisibleRect().size.width * 0.1);
+		menu->alignItemsHorizontally();
+
+		ItemLayer->addChild(menu);
+	}
+	else {
+		eatItem->setVisible(true);
+	}
+}
+
+/*******************************************
+	schedule
+********************************************/
+
+void HelloWorld::UpdateTimer(float dt)
+{
+	chkTime += 0.1;	
+	timerLabel->setString(StringUtils::format("%.1f", chkTime));
+
+	if (sprite_Character->getstate() == state_Eat) {
+		EatTime -= 0.1;
+		eattimerLabel->setString(StringUtils::format("%.1f", EatTime));
+	}
+}
+
+void HelloWorld::EatTimer(float dt)
+{
+	sprite_Character->setstate(state_Standard);
+	EatTime = 3.0f;
+	eattimerLabel->setVisible(false);
+}
+
+/*******************************************
+	Save data
+********************************************/
+void HelloWorld::SaveData() {
+	
+	LoadData();
+	if (MaxTime < chkTime)
+	{
+		UserDefault::getInstance()->setDoubleForKey("data", chkTime);
+		UserDefault::getInstance()->flush();
+	}
+}
+
+void HelloWorld::LoadData() {
+	MaxTime = UserDefault::getInstance()->getDoubleForKey("data");
+}
+
+/*******************************************
+	Callback Functions
+********************************************/
+
+void HelloWorld::OptionCallback(Ref* pSender)
+{
+	if (isPause == false) {
+		isPause = true;
+		Director::getInstance()->getScheduler()->pauseTarget(this);
+
+		if (OptionLayer == NULL) {
+			OptionLayer = Layer::create();
+			this->addChild(OptionLayer, 2);
+		}
+
+		sprite_Character->stopAllActions();
+
+		auto returnButton = MenuItemImage::create(resources::resumegame, resources::resumegame, CC_CALLBACK_1(HelloWorld::ReturnGameCallback, this));
+		auto backButton = MenuItemImage::create(resources::home, resources::home, CC_CALLBACK_1(HelloWorld::ReturnScene, this));
+		auto CloseGameButton = MenuItemImage::create(resources::endgame, resources::endgame, CC_CALLBACK_1(HelloWorld::CloseGameCallback, this));
+		auto menu = Menu::create(returnButton, backButton, CloseGameButton, NULL);
+		menu->setOpacity(180);
+		menu->alignItemsVertically();
+
+		OptionLayer->addChild(menu);
+	}
+	else {		
+		Director::getInstance()->getScheduler()->resumeTarget(this);
+		OptionLayer->removeAllChildren();
+
+		isPause = false;
+	}
+}
+
+void HelloWorld::ReturnGameCallback(Ref* pSender)
+{
+	isPause = false;
+	Director::getInstance()->getScheduler()->resumeTarget(this);
+	OptionLayer->removeAllChildren();
+}
+
+void HelloWorld::CloseGameCallback(Ref* pSender)
+{
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.", "Alert");
+	return;
+#endif
+	SaveData();
+	Director::getInstance()->end();
+	
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+	exit(0);
+#endif
+}
+
+void HelloWorld::ReturnScene(Ref* pSender)
+{
+	SaveData(); // max Time save
+	auto pTran = MenuScene::createScene();
+	Director::getInstance()->replaceScene(pTran);
+}
+
+void HelloWorld::EatItemCallback(Ref * pSender)
+{
+	if (eatItem == NULL) return;
+	sprite_Character->setstate(state_Eat);
+	eatItem->setVisible(false);	
+
+	this->scheduleOnce(schedule_selector(HelloWorld::EatTimer), 3.0f);
+
+}
+
+
+/*******************************************
+	Game Update
+********************************************/
+
+void HelloWorld::startGame(float dt)
+{
+	isPause = false;
+
+	this->schedule(schedule_selector(HelloWorld::gameLogic), resources::gamespeed);
+}
+
+void HelloWorld::gameLogic(float dt)
+{
+	// move enemies
+	for (auto& enemy : vector_enemies) {
+		enemy->move();		
+	}
+
+	// check collision character with enemies
+	for (auto iter_enemy = vector_enemies.begin(); iter_enemy != vector_enemies.end();)
+	{		
+		if (sprite_Character->collisionWithEnemy(*iter_enemy)) {
+			if (sprite_Character->getstate() == state_Eat) {
+				removeChild(*iter_enemy);
+				iter_enemy = vector_enemies.erase(iter_enemy);
+			}
+			else {
+				auto gameover = GameOverScene::createScene(chkTime);
+				Director::getInstance()->replaceScene(gameover);
+
+				removeChild(*iter_enemy);
+				iter_enemy = vector_enemies.erase(iter_enemy);
+			}
+		}
+		else {
+			++iter_enemy;
+		}
+	}
 }
 
 /*******************************************
@@ -344,6 +344,7 @@ void HelloWorld::initializeEnemy(float dt)
 ********************************************/
 
 bool HelloWorld::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
+	if (isPause == true) return false;
 	pos_TouchBefore = touch->getLocation();
 	pos_SpriteBefore = sprite_Character->getPosition();
 
@@ -351,6 +352,7 @@ bool HelloWorld::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
 }
 
 void HelloWorld::onTouchMoved(Touch* touch, Event* event) {
+	if (isPause == true) return;
 
 	auto pos_cur = touch->getLocation();
 	float diff_x = pos_cur.x - pos_TouchBefore.x;
@@ -370,5 +372,5 @@ void HelloWorld::onTouchMoved(Touch* touch, Event* event) {
 }
 
 void HelloWorld::onTouchEnded(Touch* touch, Event* event) {
-	
+	if (isPause == true) return;
 }

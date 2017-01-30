@@ -1,6 +1,7 @@
 #include "ItemScene.h"
 #include "MenuScene.h"
 #include "VisibleRect.h"
+#include "resources.cpp"
 USING_NS_CC;
 
 Scene* ItemScene::createScene()
@@ -18,9 +19,15 @@ bool ItemScene::init()
 		return false;
 	}
 
+	//initalize the background
+	auto background = Sprite::create(resources::background);
+	background->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2);
+	addChild(background);
+
+
 	Iteminit();
 
-	LoadItem();
+	//LoadItem();
 
 	MaxPoint = UserDefault::getInstance()->getDoubleForKey("data");
 	char str[100];
@@ -32,8 +39,7 @@ bool ItemScene::init()
 	this->addChild(point);
 
 	point->setString(str);
-
-	
+		
 	//change scene
 	auto BackButton = MenuItemImage::create("returngame.jpg", "returngame.jpg", CC_CALLBACK_1(ItemScene::changeScene, this));
 	auto BackMenu = Menu::create(BackButton, NULL);
@@ -57,16 +63,11 @@ void ItemScene::Iteminit()
 {
 	Item_1_Button = MenuItemImage::create("1.png", "1.png", CC_CALLBACK_1(ItemScene::itemCallBack1, this));
 	Item_2_Button = MenuItemImage::create("2.png", "2.png", CC_CALLBACK_1(ItemScene::itemCallBack2, this));
-	Item_3_Button = MenuItemImage::create("3.png", "3.png", CC_CALLBACK_1(ItemScene::itemCallBack3, this));
+	//tem_3_Button = MenuItemImage::create("3.png", "3.png", CC_CALLBACK_1(ItemScene::itemCallBack3, this));
 	
-	Item_1_Button->setOpacity(150);
-	Item_2_Button->setOpacity(150);
-	Item_3_Button->setOpacity(150);
-
-	auto menu = Menu::create(Item_1_Button, Item_2_Button, Item_3_Button, NULL);
-	
-	menu->alignItemsHorizontally();
-	menu->setPosition(ccp(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2));
+	auto menu = Menu::create(Item_1_Button, Item_2_Button, NULL);
+	menu->alignItemsVertically();
+	menu->setPosition(ccp(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height * 0.6));
 	this->addChild(menu);
 }
 

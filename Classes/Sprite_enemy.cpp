@@ -18,6 +18,7 @@ Enemy * Enemy::create(const std::string & filename)
 	if (sprite && sprite->initWithFile(filename)) {
 		sprite->set_radius(sprite->getContentSize().width / 2);
 		sprite->autorelease();
+		sprite->setZOrder(100);
 		return sprite;
 	}
 	//경로가 존재하지 않으면 안전하게 포인터를 제거하고 null리턴
@@ -59,7 +60,6 @@ void Enemy::move()
 
 void Enemy::onEnter()
 {
-	//log("radius : %f ", radius);
 	Sprite::onEnter();
 }
 
