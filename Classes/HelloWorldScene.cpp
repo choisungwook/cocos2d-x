@@ -38,10 +38,7 @@ bool HelloWorld::init()
 	initalizeCharacter();
 	initalizeTimer();
 	initializItem();
-
-	//dataLoading
-	LoadData();	
-
+	
 	// initalize Touch events
 	auto listener = EventListenerTouchOneByOne::create();
 	listener->setSwallowTouches(true);
@@ -210,23 +207,6 @@ void HelloWorld::EatTimer(float dt)
 }
 
 /*******************************************
-	Save data
-********************************************/
-void HelloWorld::SaveData() {
-	
-	LoadData();
-	if (MaxTime < chkTime)
-	{
-		UserDefault::getInstance()->setDoubleForKey("data", chkTime);
-		UserDefault::getInstance()->flush();
-	}
-}
-
-void HelloWorld::LoadData() {
-	MaxTime = UserDefault::getInstance()->getDoubleForKey("data");
-}
-
-/*******************************************
 	Callback Functions
 ********************************************/
 
@@ -273,7 +253,6 @@ void HelloWorld::CloseGameCallback(Ref* pSender)
 	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.", "Alert");
 	return;
 #endif
-	SaveData();
 	Director::getInstance()->end();
 	
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
@@ -283,7 +262,6 @@ void HelloWorld::CloseGameCallback(Ref* pSender)
 
 void HelloWorld::ReturnScene(Ref* pSender)
 {
-	SaveData(); // max Time save
 	auto pTran = MenuScene::createScene();
 	Director::getInstance()->replaceScene(pTran);
 }

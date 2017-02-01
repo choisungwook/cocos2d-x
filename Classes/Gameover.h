@@ -22,6 +22,9 @@ public:
 	void changeGameScene(Object *pSender);
 	void CloseGameCallback(Ref* pSender);
 
+	void SavePoint();
+	double LoadPoint();
+
 	CREATE_FUNC(GameOverScene);
 };
 

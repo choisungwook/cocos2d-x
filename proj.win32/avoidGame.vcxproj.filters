@@ -45,9 +45,6 @@
     <ClCompile Include="..\Classes\Gameover.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\AppManager.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -84,9 +81,6 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\resources.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Classes\AppManager.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

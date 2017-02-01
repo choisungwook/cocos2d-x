@@ -53,8 +53,5 @@ cocos2d-x/
 bin/
 proj.*
 
-# include the windows project
-!proj.win32
-
 # Ignore python compiled files
 *.pyc

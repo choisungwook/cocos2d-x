@@ -38,13 +38,6 @@ public:
 	void UpdateTimer(float dt);
 	void EatTimer(float dt);
 
-	//data save & road
-	int getItem1;
-	int getItem2;
-	int getItem3;
-	void SaveData();
-	void LoadData();	
-
 private:
 	MyCharacter* sprite_Character;
 	cocos2d::Vec2 pos_TouchBefore;

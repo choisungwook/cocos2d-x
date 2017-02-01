@@ -53,12 +53,15 @@ void GameOverScene::onEnter()
 	this->addChild(Curpoint);
 	
 	//get Max the point
-	double MaxPoint = UserDefault::getInstance()->getDoubleForKey("data");
+	double MaxPoint = LoadPoint();
 	auto point = Label::createWithSystemFont("", "Ariel", 20);
 	point->setColor(Color3B::WHITE);
 	point->setString(StringUtils::format("your max time %.1f", MaxPoint));
 	point->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height*0.55);
 	this->addChild(point);
+
+	//check and save Point
+	SavePoint();
 }
 
 void GameOverScene::onExit()
@@ -92,3 +95,19 @@ void GameOverScene::CloseGameCallback(Ref * pSender)
 	exit(0);
 #endif
 }
+
+void GameOverScene::SavePoint()
+{
+	//if the current Point is bigger than max Point, it would change theses
+	if (LoadPoint() < currentTime)
+	{
+		UserDefault::getInstance()->setDoubleForKey("data", currentTime);
+		UserDefault::getInstance()->flush();
+	}
+}
+
+double GameOverScene::LoadPoint()
+{
+	return UserDefault::getInstance()->getDoubleForKey("data");
+}
+

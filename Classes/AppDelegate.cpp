@@ -2,8 +2,6 @@
 #include "HelloWorldScene.h"
 #include "LogoScene.h"
 #include "MenuScene.h"
-#include "AppManager.h"
-USING_NS_CC;
 
 //static cocos2d::Size designResolutionSize = cocos2d::Size(480, 320);
 static cocos2d::Size designResolutionSize = cocos2d::Size(320, 480);
