@@ -1,7 +1,7 @@
 #include "Sprite_Character.h"
 #include "VisibleRect.h"
 #include "CustomCollision.h"
-#include "resources.cpp"
+#include "resources.h"
 USING_NS_CC;
 
 MyCharacter* MyCharacter::create(const std::string & filename)
@@ -10,7 +10,7 @@ MyCharacter* MyCharacter::create(const std::string & filename)
 	//경로가 존재하면 자동으로 동적 메모리 제거 기능 추가하고 sprite를 리턴
 	if (sprite && sprite->initWithFile(filename)) {
 		sprite->set_radius(sprite->getContentSize().width / 2);
-		sprite->setZOrder(resources::characterOrder);
+		sprite->setZOrder(characterOrder);
 		sprite->autorelease();		
 		return sprite;
 	}

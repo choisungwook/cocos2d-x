@@ -2,12 +2,14 @@
 #include "HelloWorldScene.h"
 #include "LogoScene.h"
 #include "MenuScene.h"
+#include "AppManager.h"
 USING_NS_CC;
 
-static cocos2d::Size designResolutionSize = cocos2d::Size(480, 320);
-static cocos2d::Size smallResolutionSize = cocos2d::Size(480, 320);
-static cocos2d::Size mediumResolutionSize = cocos2d::Size(1024, 768);
-static cocos2d::Size largeResolutionSize = cocos2d::Size(2048, 1536);
+//static cocos2d::Size designResolutionSize = cocos2d::Size(480, 320);
+static cocos2d::Size designResolutionSize = cocos2d::Size(320, 480);
+static cocos2d::Size smallResolutionSize = cocos2d::Size(1080, 1920);
+static cocos2d::Size mediumResolutionSize = cocos2d::Size(1440, 2560);
+static cocos2d::Size largeResolutionSize = cocos2d::Size(1600, 2560);
 
 AppDelegate::AppDelegate()
 {
@@ -35,52 +37,56 @@ static int register_all_packages()
 }
 
 bool AppDelegate::applicationDidFinishLaunching() {
-    // initialize director
-    auto director = Director::getInstance();
-    auto glview = director->getOpenGLView();
-    if(!glview) {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        glview = GLViewImpl::createWithRect("avoidGame", cocos2d::Rect(0, 0, designResolutionSize.width, designResolutionSize.height));
-#else
-        glview = GLViewImpl::create("avoidGame");
-#endif
-        director->setOpenGLView(glview);
-    }
+	// initialize director
+	auto director = Director::getInstance();
+	auto glview = director->getOpenGLView();
 
-    // turn on display FPS
-    director->setDisplayStats(true);
+	//if (!glview) {
+	//#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
+	//		glview = GLViewImpl::createWithRect("avoidGame", cocos2d::Rect(0, 0, designResolutionSize.width, designResolutionSize.height));
+	//#else
+	//		glview = GLViewImpl::create("avoidGame");
+	//#endif
+	//		director->setOpenGLView(glview);
+	//}
 
-    // set FPS. the default value is 1.0/60 if you don't call this
-    director->setAnimationInterval(1.0f / 60);
+	if (!glview) {
+		glview = GLViewImpl::create("My Game");
+		director->setOpenGLView(glview);
+	}
 
-    // Set the design resolution
-    glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::NO_BORDER);
-    auto frameSize = glview->getFrameSize();
-    // if the frame's height is larger than the height of medium size.
-    if (frameSize.height > mediumResolutionSize.height)
-    {        
-        director->setContentScaleFactor(MIN(largeResolutionSize.height/designResolutionSize.height, largeResolutionSize.width/designResolutionSize.width));
-    }
-    // if the frame's height is larger than the height of small size.
-    else if (frameSize.height > smallResolutionSize.height)
-    {        
-        director->setContentScaleFactor(MIN(mediumResolutionSize.height/designResolutionSize.height, mediumResolutionSize.width/designResolutionSize.width));
-    }
-    // if the frame's height is smaller than the height of medium size.
-    else
-    {        
-        director->setContentScaleFactor(MIN(smallResolutionSize.height/designResolutionSize.height, smallResolutionSize.width/designResolutionSize.width));
-    }
+	// 1. 사용자가 디자인하는 해상도 --> 비율 정의 STD_DIV_WH
+	// 2. 디바이스의 최대 사이즈 --> 비율 정의 DVI_DIV_WH
+	// 3. 사용자가 디자인하는 해상도가 크다면 (디바이스의 최대 사이즈가 더 작다면)
+	glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::FIXED_HEIGHT);
 
-    register_all_packages();
+	//1.
+	auto _width = 1080;
+	auto _height = 1920;
+	float custom_ratio = (_width / _height);
 
-    // create a scene. it's an autorelease object
-    auto scene = MenuScene::createScene();
+	//2.
+	auto screenSize = glview->getFrameSize();
+	float screen_ratio = (screenSize.width/screenSize.height);
 
-    // run
-    director->runWithScene(scene);
+	//3.
+	if (custom_ratio > screen_ratio) {
+		director->setContentScaleFactor(screenSize.width / _width);
+	}
 
-    return true;
+	//std::vector <std::string> searchPaths;
+	//cocos2d::FileUtils::getInstance()->setSearchPaths(searchPaths);
+
+	director->setDisplayStats(true);
+	director->setAnimationInterval(1.0 / 60);
+	register_all_packages();
+
+	// create a scene. it's an autorelease object
+	auto scene = MenuScene::createScene();	
+	// run
+	director->runWithScene(scene);
+
+	return true;
 }
 
 // This function will be called when the app is inactive. Note, when receiving a phone call it is invoked.

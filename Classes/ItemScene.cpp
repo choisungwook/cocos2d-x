@@ -1,7 +1,7 @@
 #include "ItemScene.h"
 #include "MenuScene.h"
 #include "VisibleRect.h"
-#include "resources.cpp"
+#include "resources.h"
 USING_NS_CC;
 
 Scene* ItemScene::createScene()
@@ -20,9 +20,9 @@ bool ItemScene::init()
 	}
 
 	//initalize the background
-	auto background = Sprite::create(resources::background);
-	background->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2);
-	addChild(background);
+	auto sbackground = Sprite::create(background);
+	sbackground->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2);
+	addChild(sbackground);
 
 
 	Iteminit();

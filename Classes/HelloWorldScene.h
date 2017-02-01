@@ -50,7 +50,7 @@ private:
 	cocos2d::Vec2 pos_TouchBefore;
 	cocos2d::Vec2 pos_SpriteBefore;
 	cocos2d::Vector<Enemy*> vector_enemies;
-	cocos2d::Sprite* background;
+	cocos2d::Sprite* sbackground;
 	cocos2d::Vec2 origin = cocos2d::Director::getInstance()->getVisibleOrigin();
 
 	//Item

@@ -3,7 +3,7 @@
 #include "VisibleRect.h"
 #include "MenuScene.h"
 #include <string>
-#include "resources.cpp"
+#include "resources.h"
 #include "Gameover.h"
 
 USING_NS_CC;
@@ -76,9 +76,9 @@ bool HelloWorld::init()
 void HelloWorld::initalizeBackground()
 {
 	//create the background
-	background = Sprite::create(resources::background);
-	background->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2);
-	addChild(background);
+	sbackground = Sprite::create(background);
+	sbackground->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2);
+	addChild(sbackground);
 
 	auto earth = Sprite::create("earth.png");
 	earth->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2);
@@ -93,11 +93,11 @@ void HelloWorld::initalizeBackground()
 
 void HelloWorld::initalizeMenu()
 {
-	auto sprOption = MenuItemImage::create(resources::setting, resources::setting, CC_CALLBACK_1(HelloWorld::OptionCallback, this));
+	auto sprOption = MenuItemImage::create(setting, setting, CC_CALLBACK_1(HelloWorld::OptionCallback, this));
 	sprOption->setOpacity(80);
 	auto menuOption = Menu::create(sprOption, NULL);
 	menuOption->setPosition(ccp((VisibleRect::getVisibleRect().size.width*0.9), (VisibleRect::getVisibleRect().size.height*0.9)));
-	this->addChild(menuOption, resources::menuOrder);	
+	this->addChild(menuOption, menuOrder);	
 }
 
 void HelloWorld::initalizeTimer()
@@ -117,14 +117,14 @@ void HelloWorld::initalizeTimer()
 
 void HelloWorld::initalizeCharacter() {
 	//create the character sprite
-	sprite_Character = MyCharacter::create(resources::character);
+	sprite_Character = MyCharacter::create(character);
 	sprite_Character->setPosition(ccp((VisibleRect::getVisibleRect().size.width / 2), (VisibleRect::getVisibleRect().size.height / 2)));
 	this->addChild(sprite_Character);
 }
 
 void HelloWorld::initializeEnemy(float dt)
 {
-	Enemy* enemy = Enemy::create(resources::ball);
+	Enemy* enemy = Enemy::create(ball);
 
 	int sides = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
 	int gap = -3;
@@ -175,7 +175,7 @@ void HelloWorld::initializItem()
 		ItemLayer = Layer::create();
 		this->addChild(ItemLayer, 2);
 
-		eatItem = MenuItemImage::create(resources::Itemeat, resources::Itemeat, CC_CALLBACK_1(HelloWorld::EatItemCallback, this));
+		eatItem = MenuItemImage::create(Itemeat, Itemeat, CC_CALLBACK_1(HelloWorld::EatItemCallback, this));
 		auto menu = Menu::create(eatItem, NULL);
 		menu->setPosition(VisibleRect::getVisibleRect().size.width * 0.9, VisibleRect::getVisibleRect().size.width * 0.1);
 		menu->alignItemsHorizontally();
@@ -243,9 +243,9 @@ void HelloWorld::OptionCallback(Ref* pSender)
 
 		sprite_Character->stopAllActions();
 
-		auto returnButton = MenuItemImage::create(resources::resumegame, resources::resumegame, CC_CALLBACK_1(HelloWorld::ReturnGameCallback, this));
-		auto backButton = MenuItemImage::create(resources::home, resources::home, CC_CALLBACK_1(HelloWorld::ReturnScene, this));
-		auto CloseGameButton = MenuItemImage::create(resources::endgame, resources::endgame, CC_CALLBACK_1(HelloWorld::CloseGameCallback, this));
+		auto returnButton = MenuItemImage::create(resumegame, resumegame, CC_CALLBACK_1(HelloWorld::ReturnGameCallback, this));
+		auto backButton = MenuItemImage::create(home, home, CC_CALLBACK_1(HelloWorld::ReturnScene, this));
+		auto CloseGameButton = MenuItemImage::create(endgame, endgame, CC_CALLBACK_1(HelloWorld::CloseGameCallback, this));
 		auto menu = Menu::create(returnButton, backButton, CloseGameButton, NULL);
 		menu->setOpacity(180);
 		menu->alignItemsVertically();
@@ -307,7 +307,7 @@ void HelloWorld::startGame(float dt)
 {
 	isPause = false;
 
-	this->schedule(schedule_selector(HelloWorld::gameLogic), resources::gamespeed);
+	this->schedule(schedule_selector(HelloWorld::gameLogic), gamespeed);
 }
 
 void HelloWorld::gameLogic(float dt)

@@ -2,7 +2,7 @@
 #include "HelloWorldScene.h"
 #include "VisibleRect.h"
 #include "ItemScene.h"
-#include "resources.cpp"
+#include "resources.h"
 USING_NS_CC;
 
 Scene* MenuScene::createScene()
@@ -21,9 +21,9 @@ bool MenuScene::init()
 	}
 
 	//initalize the background
-	auto background = Sprite::create(resources::background);
-	background->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2);
-	addChild(background);
+	auto sbackground = Sprite::create(background);
+	sbackground->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2);
+	addChild(sbackground);
 	
 	//get Max the point
 	double MaxPoint = UserDefault::getInstance()->getDoubleForKey("data");
@@ -37,8 +37,8 @@ bool MenuScene::init()
 	point->setString(str);
 
 	//initalize menus
-	auto startGameButton = MenuItemImage::create(resources::startgame, resources::startgame, CC_CALLBACK_1(MenuScene::changeScene, this));
-	auto CloseGameButton = MenuItemImage::create(resources::endgame, resources::endgame, CC_CALLBACK_1(MenuScene::CloseGameCallback, this));
+	auto startGameButton = MenuItemImage::create(startgame, startgame, CC_CALLBACK_1(MenuScene::changeScene, this));
+	auto CloseGameButton = MenuItemImage::create(endgame, endgame, CC_CALLBACK_1(MenuScene::CloseGameCallback, this));
 	auto menu = Menu::create(startGameButton, CloseGameButton, NULL);
 	//menu->setOpacity(150);
 	menu->alignItemsVertically();

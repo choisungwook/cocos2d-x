@@ -1,5 +1,5 @@
 #include "Gameover.h"
-#include "resources.cpp"
+#include "resources.h"
 #include "VisibleRect.h"
 #include "MenuScene.h"
 #include "HelloWorldScene.h"
@@ -24,14 +24,14 @@ bool GameOverScene::init()
 	}
 
 	//initalize the background
-	auto background = Sprite::create(resources::background);
-	background->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2);
-	addChild(background);
+	auto sbackground = Sprite::create(background);
+	sbackground->setPosition(VisibleRect::getVisibleRect().size.width / 2, VisibleRect::getVisibleRect().size.height / 2);
+	addChild(sbackground);
 
 	//initalize menus
-	auto goMenuButton = MenuItemImage::create(resources::home, resources::home, CC_CALLBACK_1(GameOverScene::changeMenuScene, this));
-	auto startGameButton = MenuItemImage::create(resources::startgame, resources::startgame, CC_CALLBACK_1(GameOverScene::changeGameScene, this));
-	auto CloseGameButton = MenuItemImage::create(resources::endgame, resources::endgame, CC_CALLBACK_1(GameOverScene::CloseGameCallback, this));
+	auto goMenuButton = MenuItemImage::create(home, home, CC_CALLBACK_1(GameOverScene::changeMenuScene, this));
+	auto startGameButton = MenuItemImage::create(startgame, startgame, CC_CALLBACK_1(GameOverScene::changeGameScene, this));
+	auto CloseGameButton = MenuItemImage::create(endgame, endgame, CC_CALLBACK_1(GameOverScene::CloseGameCallback, this));
 	auto menu = Menu::create(goMenuButton, startGameButton, CloseGameButton, NULL);
 	//menu->setOpacity(150);
 	menu->alignItemsHorizontally();
