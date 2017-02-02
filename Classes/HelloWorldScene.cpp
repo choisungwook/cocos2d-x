@@ -5,7 +5,7 @@
 #include <string>
 #include "resources.h"
 #include "Gameover.h"
-
+#include <random>
 USING_NS_CC;
 
 Scene* HelloWorld::createScene()
