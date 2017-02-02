@@ -123,39 +123,40 @@ void HelloWorld::initializeEnemy(float dt)
 {
 	Enemy* enemy = Enemy::create(ball);
 
-	int sides = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
-	int gap = -3;
+	int sides = getballRand(1,4);
+	int enemyRadius = enemy->get_radius();
+	double ball_width = 0.0f;
+	double ball_height = 0.0f;
+	
+	switch (sides) {
+	case 1: //east
+		ball_width = enemyRadius;
+		ball_height = getballRand(enemyRadius, origin.y + VisibleRect::getVisibleRect().size.height - enemyRadius);
 
-	if (sides == 1) { //top
-		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
-		if (pos == 1) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width *0.25, origin.y + VisibleRect::getVisibleRect().size.width + gap));
-		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.5, origin.y + VisibleRect::getVisibleRect().size.width + gap));
-		else if (pos == 3)    enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.75, origin.y + VisibleRect::getVisibleRect().size.width + gap));
-	}
-	else if (sides == 2) // bottom
-	{
-		int pos = 1 + (int)(3 * rand() / (RAND_MAX + 1.0));
-		if (pos == 1) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.25, origin.y - gap));
-		else if (pos == 2)   enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.5, origin.y - gap));
-		else if (pos == 3)   enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width*0.75, origin.y - gap));
-	}
-	else if (sides == 3) // east
-	{
-		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
-		if (pos == 1) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.2));
-		else if (pos == 2) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.4));
-		else if (pos == 3) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.6));
-		else if (pos == 4) enemy->setPosition(Vec2(origin.x - gap, origin.y + VisibleRect::getVisibleRect().size.width*0.8));
-	}
-	else if (sides == 4) // west
-	{
-		int pos = 1 + (int)(4 * rand() / (RAND_MAX + 1.0));
-		if (pos == 1) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.2));
-		else if (pos == 2) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.4));
-		else if (pos == 3) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.6));
-		else if (pos == 4) enemy->setPosition(Vec2(origin.x + VisibleRect::getVisibleRect().size.width + gap, origin.y + VisibleRect::getVisibleRect().size.width*0.8));
-	}
+		enemy->setPosition(Vec2(ball_width, ball_height));
+		break;
+	case 2: //west
+		ball_width = VisibleRect::getVisibleRect().size.width - enemyRadius;
+		ball_height = getballRand(enemyRadius, origin.y + VisibleRect::getVisibleRect().size.height - enemyRadius);
 
+		enemy->setPosition(Vec2(ball_width, ball_height));
+		break;
+	case 3: //north
+		ball_width = getballRand(enemyRadius, origin.x + VisibleRect::getVisibleRect().size.width - enemyRadius);
+		ball_height = origin.y + VisibleRect::getVisibleRect().size.height;
+
+		enemy->setPosition(Vec2(ball_width, ball_height));
+		break;
+	case 4://south
+		ball_width = getballRand(enemyRadius, origin.x + VisibleRect::getVisibleRect().size.width - enemyRadius);
+		ball_height = enemyRadius;
+
+		enemy->setPosition(Vec2(ball_width, ball_height));
+		break;
+	default:
+		break;
+	}
+	
 	this->addChild(enemy);
 
 	//initalize the speed
@@ -182,6 +183,15 @@ void HelloWorld::initializItem()
 	else {
 		eatItem->setVisible(true);
 	}
+}
+
+double HelloWorld::getballRand(float min, float max)
+{
+	std::random_device rd;
+	std::mt19937 gen{ rd() };
+	std::uniform_real_distribution<> dis{ min, max };
+	
+	return dis(gen);
 }
 
 /*******************************************
@@ -339,7 +349,7 @@ void HelloWorld::onTouchMoved(Touch* touch, Event* event) {
 	float x = pos_SpriteBefore.x + diff_x;
 	float y = pos_SpriteBefore.y + diff_y;
 
-	//âũ�� �˻�
+	//Ã¢Å©±â °Ë»ç
 	if (x > max_x) x = max_x;
 	if (x < min_x) x = min_x;
 	if (y > max_y) y = max_y;
