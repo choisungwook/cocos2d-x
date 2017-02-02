@@ -53,9 +53,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
 		director->setOpenGLView(glview);
 	}
 
-	// 1. »ç¿ëÀÚ°¡ µðÀÚÀÎÇÏ´Â ÇØ»óµµ --> ºñÀ² Á¤ÀÇ STD_DIV_WH
-	// 2. µð¹ÙÀÌ½ºÀÇ ÃÖ´ë »çÀÌÁî --> ºñÀ² Á¤ÀÇ DVI_DIV_WH
-	// 3. »ç¿ëÀÚ°¡ µðÀÚÀÎÇÏ´Â ÇØ»óµµ°¡ Å©´Ù¸é (µð¹ÙÀÌ½ºÀÇ ÃÖ´ë »çÀÌÁî°¡ ´õ ÀÛ´Ù¸é)
+	// 1. ì‚¬ìš©ìžê°€ ë””ìžì¸í•˜ëŠ” í•´ìƒë„ --> ë¹„ìœ¨ ì •ì˜ STD_DIV_WH
+	// 2. ë””ë°”ì´ìŠ¤ì˜ ìµœëŒ€ ì‚¬ì´ì¦ˆ --> ë¹„ìœ¨ ì •ì˜ DVI_DIV_WH
+	// 3. ì‚¬ìš©ìžê°€ ë””ìžì¸í•˜ëŠ” í•´ìƒë„ê°€ í¬ë‹¤ë©´ (ë””ë°”ì´ìŠ¤ì˜ ìµœëŒ€ ì‚¬ì´ì¦ˆê°€ ë” ìž‘ë‹¤ë©´)
 	glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::FIXED_HEIGHT);
 
 	//1.
@@ -74,8 +74,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
 	//std::vector <std::string> searchPaths;
 	//cocos2d::FileUtils::getInstance()->setSearchPaths(searchPaths);
-
-	director->setDisplayStats(true);
+	
 	director->setAnimationInterval(1.0 / 60);
 	register_all_packages();
 
