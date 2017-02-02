@@ -37,6 +37,9 @@ public:
 		
 	void UpdateTimer(float dt);
 	void EatTimer(float dt);
+	
+	//set enemy(ball) height position
+	double getballRand(float min, float max);
 
 private:
 	MyCharacter* sprite_Character;
